@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.client.*;
@@ -33,7 +35,7 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 // Nếu muốn login thường (username/password), thêm grant type PASSWORD (deprecated, nhưng có thể enable)
-                // .authorizationGrantType(new AuthorizationGrantType("password"))
+                .authorizationGrantType(new AuthorizationGrantType("password"))
                 .redirectUri("http://localhost:8080/login/oauth2/code/my-client-oidc")
                 .redirectUri("http://localhost:8080/authorized")
                 .scope("read")
