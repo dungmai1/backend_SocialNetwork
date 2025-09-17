@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,19 +23,23 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @Column(unique = true)
-    private String usname;
+    private String username;
     private String displayname;
     @Column(unique = true)
     private String phone;
     private String avatar;
-    private int status;
+    @Column(unique = true)
+    private String gmail;
+    private Integer status;
     @JsonIgnore
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provider_id")
+    private UserProvider provider;
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -48,7 +53,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return String.valueOf(phone);
+        return username;
     }
     @JsonIgnore
     @Override

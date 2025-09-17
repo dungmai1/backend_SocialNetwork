@@ -119,7 +119,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostServiceModel> getAllPostsByUsername(String username) {
-        User user = userRepository.findByUsname(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
         List<PostServiceModel> postServiceModels = new ArrayList<>();
         for (Post post : postList) {
@@ -141,7 +141,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostServiceModel> GetAllPostByFollowing(String username) {
-        User user = userRepository.findByUsname(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return new ArrayList<>(); // Return an empty list if user is not found
         }

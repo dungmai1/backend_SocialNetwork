@@ -27,7 +27,7 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public boolean CreateRequestAddingFriend(User user, String username) throws CustomException{
-        User friendCandidate = userRepository.findByUsname(username).orElse(null);
+        User friendCandidate = userRepository.findByUsername(username).orElse(null);
         if( friendCandidate == null || friendCandidate == user ) {
             throw new CustomException("User not found");
         }
@@ -47,7 +47,7 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public List<User> getFollower(String username) {
-        User user = userRepository.findByUsname(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return new ArrayList<>();
         }
@@ -61,7 +61,7 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public List<User> getFollowing(String username) {
-        User user = userRepository.findByUsname(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             return new ArrayList<>();
         }
@@ -75,7 +75,7 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public boolean checkFollow(User user, String username) {
-        User checkuser = userRepository.findByUsname(username).orElse(null);
+        User checkuser = userRepository.findByUsername(username).orElse(null);
         if(checkuser == user){
             throw new CustomException("This user is yours");
         }

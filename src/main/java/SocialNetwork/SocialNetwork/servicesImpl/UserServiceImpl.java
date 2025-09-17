@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserByUsername(String username) {
-        User user = userRepository.findByUsname(username).orElse(null);
+        User user = userRepository.findByUsername(username).orElse(null);
         if(user==null) {
             throw new CustomException("User not exist with username "+username);
         }
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> searchUserName(String textSearch) {
-        List<User> user = userRepository.findByUsnameContaining(textSearch);
+        List<User> user = userRepository.findByUsernameContaining(textSearch);
         if(user==null) {
             throw new CustomException("User not exist with username "+textSearch);
         }
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         }
         else{
-            throw new CustomException("User not exist with username "+user.getUsname());
+            throw new CustomException("User not exist with username "+user.getUsername());
         }
     }
 
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
     public void banUser(Integer UserId) {
         User user = userRepository.findById(UserId).orElse(null);
         if(user==null) {
-            throw new CustomException("User not exist with username "+user.getUsname());
+            throw new CustomException("User not exist with username "+user.getUsername());
         }
         user.setStatus(2);
         userRepository.save(user);
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     public void UnbanUser(Integer UserId) {
         User user = userRepository.findById(UserId).orElse(null);
         if(user==null) {
-            throw new CustomException("User not exist with username "+user.getUsname());
+            throw new CustomException("User not exist with username "+user.getUsername());
         }
         user.setStatus(1);
         userRepository.save(user);

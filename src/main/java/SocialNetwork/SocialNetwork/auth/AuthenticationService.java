@@ -22,7 +22,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(RegisterRequest request) {
         User checkPhone = userRepository.findByPhone(request.getPhone()).orElse(null);
-        User checkUsername = userRepository.findByUsname(request.getUsername()).orElse(null);
+        User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
         if(checkPhone!=null){
             throw new CustomException("User with this phone number already exists");
         }
@@ -31,7 +31,7 @@ public class AuthenticationService {
         }
         else{
             var user = User.builder()
-                    .usname(request.getUsername())
+                    .username(request.getUsername())
                     .displayname(request.getDisplayname())
                     .phone(request.getPhone())
                     .password(passwordEncoder.encode(request.getPassword()))
@@ -50,11 +50,11 @@ public class AuthenticationService {
     public LoginResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                    request.getPhone(),
+                    request.getUsername(),
                     request.getPassword()
             )
         );
-        var user = userRepository.findByPhone(String.valueOf(request.getPhone()))
+        var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return LoginResponse.builder()
