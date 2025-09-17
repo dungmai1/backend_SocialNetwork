@@ -1,26 +1,19 @@
 package SocialNetwork.SocialNetwork.auth;
-import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.Role;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpRequest;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(AuthenticationRequest request) {
         User checkPhone = userRepository.findByPhone(request.getPhone()).orElse(null);
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
         if(checkPhone!=null){
@@ -40,27 +33,9 @@ public class AuthenticationService {
                     .status(1)
                     .build();
             userRepository.save(user);
-            var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
-                    .token(jwtToken)
                     .message("Registration successful")
                     .build();
         }
-    }
-    public LoginResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-            )
-        );
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return LoginResponse.builder()
-                .token(jwtToken)
-                .message("Login successfully")
-                .user(user)
-                .build();
     }
 }

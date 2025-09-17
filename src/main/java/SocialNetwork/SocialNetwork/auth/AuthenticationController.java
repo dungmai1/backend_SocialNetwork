@@ -14,19 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final AuthenticationService service;
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthenticationRequest request) {
         try {
             return ResponseEntity.ok(service.register(request));
         } catch (CustomException e) {
-            return new ResponseEntity<>(new AuthenticationResponse("",e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
-    }
-    @PostMapping("/login") 
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody AuthenticationRequest request){
-        try{
-            return ResponseEntity.ok(service.authenticate(request));
-        }catch (CustomException e){
-            return new ResponseEntity<>(new LoginResponse("",e.getMessage(),null), HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(new AuthenticationResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 }

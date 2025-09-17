@@ -1,6 +1,5 @@
 package SocialNetwork.SocialNetwork.servicesImpl;
 
-import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
@@ -14,18 +13,10 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    private JwtService jwtService;
-    @Autowired
     private UserRepository userRepository;
     @Override
     public User findUserByJwt(String jwt) {
-        String token = jwt.substring(7);
-        String phone = jwtService.extractUsername(token);
-        User user = userRepository.findByPhone(phone).orElse(null);
-        if(user==null) {
-            throw new CustomException("User not exist with phone "+phone);
-        }
-        return user;
+        return null;
     }
 
     @Override
