@@ -1,4 +1,5 @@
 package SocialNetwork.SocialNetwork.auth;
+import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.Role;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
@@ -13,7 +14,8 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    public AuthenticationResponse register(AuthenticationRequest request) {
+    private final JwtService jwtService;
+    public AuthenticationResponse register(RegisterRequest request) {
         User checkPhone = userRepository.findByPhone(request.getPhone()).orElse(null);
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
         if(checkPhone!=null){
@@ -38,4 +40,21 @@ public class AuthenticationService {
                     .build();
         }
     }
+    public AuthenticationResponse login (LoginRequest request){
+        User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
+        
+        if (checkUsername == null) {
+            throw new CustomException("Username not found");
+        }else{
+            if(passwordEncoder.matches(request.getPassword(),checkUsername.getPassword())){
+                return AuthenticationResponse.builder()
+                        .token(jwtService.generateToken(checkUsername.getUsername()))
+                        .message("Login successful")
+                        .build();
+            }else{
+                throw new CustomException("Incorrect password");
+            }
+        }
+    }
+    
 }
