@@ -8,6 +8,8 @@ import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostServiceModel;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.PostService;
 import SocialNetwork.SocialNetwork.services.UserService;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 @RestController
+@Slf4j
 @RequestMapping("/post")
 public class PostController {
     @Autowired
@@ -28,8 +31,10 @@ public class PostController {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.createPost(postCreateBindingModel,user);
+            log.info("Post created successfully for user: {}", user.getUsername());
             return new ResponseEntity<>(new ApiResponse(true, "Post has been created"), HttpStatus.CREATED);
         }catch (CustomException e){
+            log.error("Unexpected error while creating post", e);
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
@@ -39,8 +44,10 @@ public class PostController {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.deletePost(user,PostId);
+            log.info("Post deleted successfully for user: {}", user.getUsername());
             return new ResponseEntity<>(new ApiResponse(true, "Delete Post success"), HttpStatus.OK);
         }catch (CustomException e){
+            log.error("Unexpected error while deleting post", e);
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
@@ -48,6 +55,7 @@ public class PostController {
     public List<PostServiceModel> getAllPostByUser(@RequestHeader("Authorization") String jwt){
         User user = userService.findUserByJwt(jwt);
         List<PostServiceModel> postServiceModelList = postService.getAllPostsByUser(user);
+        log.info("Retrieved {} posts for user: {}", postServiceModelList.size(), user.getUsername());
         return postServiceModelList;
     }
     @GetMapping("/GetSinglePost")
@@ -55,12 +63,14 @@ public class PostController {
                                           Integer PostId){
         User user = userService.findUserByJwt(jwt);
         PostServiceModel postServiceModel = postService.getSinglePost(user,PostId);
+        log.info("Retrieved post with ID {} for user: {}", PostId, user.getUsername());
         return postServiceModel;
     }
     @GetMapping("/GetAllPost")
     public List<PostServiceModel> getAllPost(@RequestHeader("Authorization") String jwt){
         User user = userService.findUserByJwt(jwt);
         List<PostServiceModel> postServiceModelList = postService.getAllPosts(user,1);
+        log.info("Retrieved {} posts for user: {}", postServiceModelList.size(), user.getUsername());
         return postServiceModelList;
     }
     @PostMapping("/Save")
@@ -68,8 +78,10 @@ public class PostController {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.savePost(user,PostId);
+            log.info("Post with ID {} saved successfully for user: {}", PostId, user.getUsername());
             return new ResponseEntity<>(new ApiResponse(true, "Save Post success"), HttpStatus.OK);
         }catch (CustomException e){
+            log.error("Unexpected error while saving post", e);
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
@@ -77,11 +89,13 @@ public class PostController {
     public List<PostServiceModel> GetAllSavedPost(@RequestHeader("Authorization") String jwt){
         User user = userService.findUserByJwt(jwt);
         List<PostServiceModel> postServiceModelList = postService.GetAllSavedPost(user);
+        log.info("Retrieved {} saved posts for user: {}", postServiceModelList.size(), user.getUsername());
         return postServiceModelList;
     }
     @GetMapping("/GetAllPostByUsername/{username}")
     public List<PostServiceModel> getAllPostsByUsername(@PathVariable String username){
         List<PostServiceModel> postServiceModelList = postService.getAllPostsByUsername(username);
+        log.info("Retrieved {} posts for username: {}", postServiceModelList.size(), username);
         return postServiceModelList;
     }
     @GetMapping("/GetAllPostByImagePath")

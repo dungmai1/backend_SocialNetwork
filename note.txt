@@ -1,1 +1,18 @@
-SELECT setval('users_id_seq', (SELECT MAX(id) FROM public.users));
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM public.users));\
+
+
+spring.security.oauth2.client.provider.google.issuer-uri=https://accounts.google.com
+
+# Mức log mặc định
+logging.level.root=INFO
+
+# Riêng Spring
+logging.level.org.springframework=INFO
+
+# Hibernate
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+# Ghi log ra file
+logging.file.name=app.log
+logging.file.path=logs

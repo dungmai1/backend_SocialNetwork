@@ -1,5 +1,6 @@
 package SocialNetwork.SocialNetwork.servicesImpl;
 
+import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
@@ -14,9 +15,31 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private JwtService jwtService;
+    
     @Override
     public User findUserByJwt(String jwt) {
-        return null;
+        // Remove "Bearer " prefix if present
+        String token = jwt;
+        if (jwt.startsWith("Bearer ")) {
+            token = jwt.substring(7);
+        }
+        
+        // Validate token and get username
+        String username = jwtService.validateToken(token);
+        if (username == null) {
+            throw new CustomException("Invalid JWT token");
+        }
+        
+        // Find user by username
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            throw new CustomException("User not found for token");
+        }
+        
+        return user;
     }
 
     @Override
