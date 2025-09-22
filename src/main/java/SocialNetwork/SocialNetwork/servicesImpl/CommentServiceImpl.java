@@ -11,7 +11,6 @@ import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.CommentService;
 import org.modelmapper.ModelMapper;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

@@ -1,8 +1,8 @@
 package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.domain.entities.*;
-import SocialNetwork.SocialNetwork.domain.models.bindingModels.PostCreateBindingModel;
-import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostServiceModel;
+import SocialNetwork.SocialNetwork.domain.models.bindingModels.PostRequest;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
@@ -13,10 +13,7 @@ import SocialNetwork.SocialNetwork.services.PostService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,8 +23,6 @@ public class PostServiceImpl implements PostService {
     private final SavedRepository savedRepository;
     private final RelationshipRepository relationshipRepository;
     private final ModelMapper modelMapper;
-    @Autowired
-
     public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
@@ -36,30 +31,29 @@ public class PostServiceImpl implements PostService {
         this.modelMapper = modelMapper;
     }
 
-
     @Override
-    public boolean createPost(PostCreateBindingModel postCreateBindingModel, User user) {
-        PostServiceModel postServiceModel = new PostServiceModel();
-        postServiceModel.setUser(user);
-        postServiceModel.setContent(postCreateBindingModel.getContent());
-        postServiceModel.setImageUrl(postCreateBindingModel.getImageUrl());
-        postServiceModel.setStatus(1);
-        postServiceModel.setPostTime(LocalDateTime.now());
-        postServiceModel.setLikeList(new ArrayList<>());
-        postServiceModel.setCommentList(new ArrayList<>());
-        Post post = this.modelMapper.map(postServiceModel, Post.class);
+    public PostDTO createPost(PostRequest postRequest, User user) {
+        Post post = modelMapper.map(postRequest, Post.class);
+        post.setUser(user);
+        post.setStatus(1);
+        post.setPostTime(LocalDateTime.now());
         postRepository.save(post);
-        return true;
+        PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+        postDTO.setDisplayName(user.getDisplayname());
+        postDTO.setAvatar(user.getAvatar());
+        return postDTO;
     }
     @Override
-    public List<PostServiceModel> getAllPostsByUser(User user) {
+    public List<PostDTO> getAllPostsByUser(User user) {
         List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
+        List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
+            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+            PostDTO.setDisplayName(post.getUser().getDisplayname());
+            PostDTO.setAvatar(post.getUser().getAvatar());
+            PostDTOs.add(PostDTO);
         }
-        return postServiceModels;
+        return PostDTOs;
     }
 
     @Override
@@ -70,21 +64,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostServiceModel getSinglePost(User user,Integer postId) {
+    public PostDTO getSinglePost(User user,Integer postId) {
         Post post = postRepository.findById(postId).orElse(null);
-        PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-        return postServiceModel;
+        PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        return PostDTO;
     }
 
     @Override
-    public List<PostServiceModel> getAllPosts(User user,Integer status) {
+    public List<PostDTO> getAllPosts(User user,Integer status) {
         List<Post> postList = postRepository.findAllByStatus(status);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
+        List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
+            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+            PostDTO.setDisplayName(post.getUser().getDisplayname());
+            PostDTO.setAvatar(post.getUser().getAvatar());
+            PostDTOs.add(PostDTO);
         }
-        return postServiceModels;
+        return PostDTOs;
     }
 
     @Override
@@ -106,56 +102,59 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostServiceModel> GetAllSavedPost(User user) {
-        List<Saved> savedPosts = savedRepository.findAllByUser(user);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
-        for (Saved saved : savedPosts) {
-            Post post = saved.getPost();
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
-        }
-        return postServiceModels;
+    public List<PostDTO> GetAllSavedPost(User user) {
+        // List<Saved> savedPosts = savedRepository.findAllByUser(user);
+        // List<PostDTO> PostDTOs = new ArrayList<>();
+        // for (Saved saved : savedPosts) {
+        //     Post post = saved.getPost();
+        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        //     PostDTOs.add(PostDTO);
+        // }
+        // return PostDTOs;
+        return null;
     }
 
     @Override
-    public List<PostServiceModel> getAllPostsByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
-        for (Post post : postList) {
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
-        }
-        return postServiceModels;
+    public List<PostDTO> getAllPostsByUsername(String username) {
+        // User user = userRepository.findByUsername(username).orElse(null);
+        // List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
+        // List<PostDTO> PostDTOs = new ArrayList<>();
+        // for (Post post : postList) {
+        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        //     PostDTOs.add(PostDTO);
+        // }
+        // return PostDTOs;
+        return null;
     }
 
     @Override
-    public List<PostServiceModel> getAllPostsByImagePath(List<String> imagePaths) {
+    public List<PostDTO> getAllPostsByImagePath(List<String> imagePaths) {
         List<Post> postList = postRepository.findByImageUrls(imagePaths);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
+        List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
+            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+            PostDTOs.add(PostDTO);
         }
-        return postServiceModels;    }
+        return PostDTOs;    }
 
     @Override
-    public List<PostServiceModel> GetAllPostByFollowing(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return new ArrayList<>(); // Return an empty list if user is not found
-        }
-        List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
-        for (Relationship relationship : relationshipList) {
-            List<Post> postList = postRepository.findAllByUserAndStatus(relationship.getUserTwo(),1);
-            for (Post post : postList) {
-                PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-                postServiceModels.add(postServiceModel);
-            }
-        }
+    public List<PostDTO> GetAllPostByFollowing(String username) {
+        // User user = userRepository.findByUsername(username).orElse(null);
+        // if (user == null) {
+        //     return new ArrayList<>(); // Return an empty list if user is not found
+        // }
+        // List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
+        // List<PostDTO> PostDTOs = new ArrayList<>();
+        // for (Relationship relationship : relationshipList) {
+        //     List<Post> postList = postRepository.findAllByUserAndStatus(relationship.getUserTwo(),1);
+        //     for (Post post : postList) {
+        //         PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        //         PostDTOs.add(PostDTO);
+        //     }
+        // }
 
-        return postServiceModels;
+        // return PostDTOs;
+        return null;
     }
 
     @Override
@@ -179,13 +178,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostServiceModel> getAllPostBan(User user, Integer status) {
+    public List<PostDTO> getAllPostBan(User user, Integer status) {
         List<Post> postList = postRepository.findAllByStatus(status);
-        List<PostServiceModel> postServiceModels = new ArrayList<>();
+        List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
-            PostServiceModel postServiceModel = modelMapper.map(post, PostServiceModel.class);
-            postServiceModels.add(postServiceModel);
+            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+            PostDTOs.add(PostDTO);
         }
-        return postServiceModels;
+        return PostDTOs;
     }
 }

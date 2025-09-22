@@ -1,18 +1,21 @@
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM public.users));\
-
-
-spring.security.oauth2.client.provider.google.issuer-uri=https://accounts.google.com
-
-# Mức log mặc định
+# Mức log mặc định: chỉ in từ INFO trở lên
 logging.level.root=INFO
 
-# Riêng Spring
+# Spring: giữ INFO thôi (không in DEBUG)
 logging.level.org.springframework=INFO
+logging.level.org.springframework.web=INFO
+logging.level.org.springframework.security=INFO
 
-# Hibernate
-logging.level.org.hibernate.SQL=DEBUG
-logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+# Log cho package của bạn (nếu chỉ cần cơ bản)
+logging.level.SocialNetwork.SocialNetwork=INFO
+
+# HTTP request/response: chỉ WARN để hạn chế log
+logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=WARN
+
+# Hibernate: chỉ INFO (không in SQL và bind param chi tiết)
+logging.level.org.hibernate.SQL=INFO
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=INFO
 
 # Ghi log ra file
-logging.file.name=app.log
-logging.file.path=logs
+logging.file.name=logs/app.log
