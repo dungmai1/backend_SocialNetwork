@@ -9,10 +9,8 @@ import lombok.Data;
 public class Relationship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @ManyToOne
-    private User userOne;
-    @ManyToOne
-    private User userTwo;
+    private Long id;
+    private Long userOne;
+    private Long userTwo;
     private int status;
 }

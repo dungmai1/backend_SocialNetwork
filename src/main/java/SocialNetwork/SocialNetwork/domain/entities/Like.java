@@ -10,12 +10,7 @@ import lombok.Data;
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
-    @ManyToOne
-    @JsonIgnore
-    private User user;
-    @ManyToOne
-    @JsonIgnore
-    private Post post;
-    private Long count = 0L;
+    private Long Id;
+    private Long userId;
+    private Long postId;
 }

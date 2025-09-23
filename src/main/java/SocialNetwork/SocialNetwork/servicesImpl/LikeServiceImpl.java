@@ -33,18 +33,17 @@ public class LikeServiceImpl implements LikeService {
         }
         Like checkLike = likeRepository.findByUserAndPost(user, post);
         if ( checkLike != null ) {
-            post.getLikeList().remove(checkLike);
+            post.setLikeCount(post.getLikeCount()-1); ;
             postRepository.save(post);
             likeRepository.delete(checkLike);
         }else {
             Like like = new Like();
-            like.setUser(user);
-            like.setPost(post);
-            like.setCount(1L);
-            post.getLikeList().add(like);
+            like.setUserId(user.getId());
+            like.setPostId(post.getId());
+            post.setLikeCount(post.getLikeCount());
+            postRepository.save(post);
             likeRepository.save(like);
         }
-        postRepository.save(post);
         return true;
     }
 
@@ -69,16 +68,16 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<User> getAllUserLikePost(Integer postId) throws CustomException{
-        Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            throw new CustomException("PostId not exists");
-        }
-        List<Like> likes = likeRepository.findAllLikesByPost(post);
-        List<User> users = new ArrayList<>();
-        for (Like like : likes) {
-            users.add(like.getUser());
-        }
-        return users;
+        // Post post = postRepository.findById(postId).orElse(null);
+        // if (post == null) {
+        //     throw new CustomException("PostId not exists");
+        // }
+        // List<Like> likes = likeRepository.findAllLikesByPost(post);
+        // List<User> users = new ArrayList<>();
+        // for (Like like : likes) {
+        //     users.add(like.getUser());
+        // }
+        return null;
     }
 
     @Override

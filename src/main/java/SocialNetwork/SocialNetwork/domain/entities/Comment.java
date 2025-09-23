@@ -13,12 +13,10 @@ import java.util.Date;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer Id;
-    private String content_cmt;
-    @ManyToOne
-    private User user;
-    @ManyToOne
-    private Post post;
-    private String ImageUrl;
-    private LocalDateTime CommentTime;
+    private Long Id;
+    private String content;
+    private Long userId;
+    private Long postId;
+    private String imageUrl;
+    private LocalDateTime commentTime;
 }
