@@ -37,8 +37,8 @@ public class RelationshipServiceImpl implements RelationshipService {
             throw new CustomException("Delete relationship");
         }else{
             Relationship relationship = new Relationship();
-            relationship.setUserOne(user);
-            relationship.setUserTwo(friendCandidate);
+            relationship.setUserOne(user.getId());
+            relationship.setUserTwo(friendCandidate.getId());
             relationship.setStatus(1);
             relationshipRepository.save(relationship);
         }
@@ -47,30 +47,32 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public List<User> getFollower(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return new ArrayList<>();
-        }
-        List<Relationship> relationshipList = relationshipRepository.findAllByUserTwo(user);
-        List<User> users = new ArrayList<>();
-        for (Relationship relationship : relationshipList) {
-            users.add(relationship.getUserOne());
-        }
-        return users;
+        // User user = userRepository.findByUsername(username).orElse(null);
+        // if (user == null) {
+        //     return new ArrayList<>();
+        // }
+        // List<Relationship> relationshipList = relationshipRepository.findAllByUserTwo(user);
+        // List<User> users = new ArrayList<>();
+        // for (Relationship relationship : relationshipList) {
+        //     users.add(relationship.getUserOne());
+        // }
+        // return users;
+        return null;
     }
 
     @Override
     public List<User> getFollowing(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if (user == null) {
-            return new ArrayList<>();
-        }
-        List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
-        List<User> users = new ArrayList<>();
-        for (Relationship relationship : relationshipList) {
-            users.add(relationship.getUserTwo());
-        }
-        return users;
+        // User user = userRepository.findByUsername(username).orElse(null);
+        // if (user == null) {
+        //     return new ArrayList<>();
+        // }
+        // List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
+        // List<User> users = new ArrayList<>();
+        // for (Relationship relationship : relationshipList) {
+        //     users.add(relationship.getUserTwo());
+        // }
+        // return users;
+        return null;
     }
 
     @Override
