@@ -3,7 +3,7 @@ package SocialNetwork.SocialNetwork.controllers;
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.bindingModels.CommentCreateBindingModel;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.CommentService;
 import SocialNetwork.SocialNetwork.services.UserService;
@@ -22,11 +22,11 @@ public class CommentController {
     @Autowired
     private UserService userService;
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createComment(@RequestBody CommentCreateBindingModel commentCreateBindingModel,
+    public ResponseEntity<ApiResponse> createComment(@RequestBody CommentRequest CommentRequest,
                                                      @RequestHeader("Authorization") String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
-            commentService.addComment(commentCreateBindingModel,user);
+            commentService.addComment(CommentRequest,user);
             return new ResponseEntity<>(new ApiResponse(true,"Add Comment Success"), HttpStatus.CREATED);
         }catch (CustomException e){
             return new ResponseEntity<>(new ApiResponse(false,e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -56,14 +56,5 @@ public class CommentController {
     public List<Comment> getAllCommentForPost(Integer PostId){
         List<Comment> commentList = commentService.getAllCommentForPost(PostId);
         return commentList;
-    }
-    @GetMapping("/countAllComment")
-    public ResponseEntity countAllComment(){
-        try {
-            Integer countComment = commentService.countAllComment();
-            return ResponseEntity.ok(countComment);
-        } catch (CustomException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
     }
 }

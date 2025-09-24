@@ -32,14 +32,15 @@ public class JwtService {
     public String generateToken(String username) {
         try {
             JWSHeader header = new JWSHeader(JWSAlgorithm.RS256);
+            long sevenDaysMillis = 7L * 24 * 60 * 60 * 1000;
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                    .subject(username)
-                    .issuer("my-app")
-                    .expirationTime(new Date(System.currentTimeMillis() + 3600_000)) // 1h
-                    .build();
+                .subject(username)
+                .issuer("my-app")
+                .expirationTime(new Date(System.currentTimeMillis() + sevenDaysMillis)) // 7 ngày
+                .build();
 
-            SignedJWT signedJWT = new SignedJWT(header, claims);
-            signedJWT.sign(new RSASSASigner(keyPair.getPrivate()));
+                SignedJWT signedJWT = new SignedJWT(header, claims);
+                signedJWT.sign(new RSASSASigner(keyPair.getPrivate()));
 
             return signedJWT.serialize();
         } catch (Exception e) {

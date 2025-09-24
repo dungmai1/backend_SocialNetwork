@@ -1,8 +1,7 @@
 package SocialNetwork.SocialNetwork.services;
 
-import SocialNetwork.SocialNetwork.domain.entities.Post;
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.bindingModels.PostRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 
 import java.util.List;

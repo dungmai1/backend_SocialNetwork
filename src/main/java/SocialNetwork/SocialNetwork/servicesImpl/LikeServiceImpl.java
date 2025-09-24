@@ -17,12 +17,10 @@ import java.util.List;
 public class LikeServiceImpl implements LikeService {
     private LikeRepository likeRepository;
     private PostRepository postRepository;
-    private UserRepository userRepository;
 
-    public LikeServiceImpl(LikeRepository likeRepository, PostRepository postRepository, UserRepository userRepository) {
+    public LikeServiceImpl(LikeRepository likeRepository, PostRepository postRepository) {
         this.likeRepository = likeRepository;
         this.postRepository = postRepository;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -33,14 +31,14 @@ public class LikeServiceImpl implements LikeService {
         }
         Like checkLike = likeRepository.findByUserAndPost(user, post);
         if ( checkLike != null ) {
-            post.setLikeCount(post.getLikeCount()-1); ;
+            post.setLikeCount(post.getLikeCount() - 1); ;
             postRepository.save(post);
             likeRepository.delete(checkLike);
         }else {
             Like like = new Like();
-            like.setUserId(user.getId());
-            like.setPostId(post.getId());
-            post.setLikeCount(post.getLikeCount());
+            like.setUser(user);
+            like.setPost(post);
+            post.setLikeCount(post.getLikeCount() + 1);
             postRepository.save(post);
             likeRepository.save(like);
         }
@@ -53,7 +51,7 @@ public class LikeServiceImpl implements LikeService {
         if (post == null) {
             throw new CustomException("Post not exists");
         }
-        return this.likeRepository.findAllLikesByPost(post).size();
+        return this.likeRepository.countByPost(post);
     }
 
 //    @Override
@@ -78,10 +76,5 @@ public class LikeServiceImpl implements LikeService {
         //     users.add(like.getUser());
         // }
         return null;
-    }
-
-    @Override
-    public Integer getAllLikes() {
-        return this.likeRepository.findAll().size();
     }
 }

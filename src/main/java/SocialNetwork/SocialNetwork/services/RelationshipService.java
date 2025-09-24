@@ -2,7 +2,6 @@ package SocialNetwork.SocialNetwork.services;
 
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserServiceModel;
 
 import java.util.List;
 

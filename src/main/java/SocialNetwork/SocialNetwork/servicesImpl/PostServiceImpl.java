@@ -1,7 +1,7 @@
 package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.domain.entities.*;
-import SocialNetwork.SocialNetwork.domain.models.bindingModels.PostRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
@@ -45,7 +45,7 @@ public class PostServiceImpl implements PostService {
     }
     @Override
     public List<PostDTO> getAllPostsByUser(User user) {
-        List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
+        List<Post> postList = postRepository.findAllByStatus(1);
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
@@ -129,13 +129,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDTO> getAllPostsByImagePath(List<String> imagePaths) {
-        List<Post> postList = postRepository.findByImageUrls(imagePaths);
-        List<PostDTO> PostDTOs = new ArrayList<>();
-        for (Post post : postList) {
-            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-            PostDTOs.add(PostDTO);
-        }
-        return PostDTOs;    }
+        // List<Post> postList = postRepository.findByImageUrls(imagePaths);
+        // List<PostDTO> PostDTOs = new ArrayList<>();
+        // for (Post post : postList) {
+        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        //     PostDTOs.add(PostDTO);
+        // }
+        // return PostDTOs;    
+        return null;
+    }
 
     @Override
     public List<PostDTO> GetAllPostByFollowing(String username) {

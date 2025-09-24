@@ -1,18 +1,11 @@
 package SocialNetwork.SocialNetwork.servicesImpl;
-
-import SocialNetwork.SocialNetwork.domain.entities.Like;
 import SocialNetwork.SocialNetwork.domain.entities.Relationship;
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserServiceModel;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.RelationshipService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

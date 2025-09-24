@@ -1,4 +1,4 @@
-package SocialNetwork.SocialNetwork.domain.models.bindingModels;
+package SocialNetwork.SocialNetwork.domain.models.ModelsRequest;
 import lombok.Data;
 
 @Data
