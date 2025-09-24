@@ -1,15 +1,16 @@
 package SocialNetwork.SocialNetwork.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Data
 @Table(name = "Comments")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
