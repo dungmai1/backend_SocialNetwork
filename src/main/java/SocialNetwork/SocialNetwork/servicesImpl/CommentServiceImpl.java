@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -28,18 +29,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean addComment(CommentRequest CommentRequest, User user) {
-        Post post = postRepository.findById(CommentRequest.getPostId()).orElse(null);
+    public boolean addComment(CommentRequest commentRequest, User user) {
+        Post post = postRepository.findById(commentRequest.getPostId()).orElse(null);
         if(post == null) {
             throw new CustomException("PostId not found");
         }
-        CommentDTO CommentDTO = new CommentDTO();
-        CommentDTO.setCommentTime(LocalDateTime.now());
-        CommentDTO.setUser(user);
-        CommentDTO.setPost(post);
-        CommentDTO.setImageUrl(CommentRequest.getImageUrl());
-        CommentDTO.setContent_cmt(CommentRequest.getContent_cmt());
-        Comment comment = this.modelMapper.map(CommentDTO, Comment.class);
+        Comment comment = new Comment();
+        comment.setContent(commentRequest.getContentCmt());
+        comment.setPost(post);
+        comment.setUser(user);
+        comment.setImageUrl(commentRequest.getImageUrl());
+        comment.setCommentTime(LocalDateTime.now());
         commentRepository.save(comment);
         return true;
     }
@@ -64,12 +64,21 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> getAllCommentForPost(Integer postId) {
-        Post post = postRepository.findById(postId).orElse(null);
+    public List<CommentDTO> getAllCommentForPost(Integer postId) {
+        Post post = postRepository.findById(postId).get();
         if(post == null) {
             throw new CustomException("userId or PostId not found");
         }
         List<Comment> commentList = commentRepository.findAllByPost(post);
-        return commentList;
+        return commentList.stream()
+            .map(c -> new CommentDTO(
+                c.getId(),
+                c.getContent(),
+                c.getPost().getId(),
+                c.getUser().getId(),
+                c.getImageUrl(),
+                c.getCommentTime()
+            ))
+            .collect(Collectors.toList());
     }
 }

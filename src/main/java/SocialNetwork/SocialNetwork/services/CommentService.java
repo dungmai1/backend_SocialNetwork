@@ -1,8 +1,8 @@
 package SocialNetwork.SocialNetwork.services;
 
-import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public interface CommentService {
     int CountAllCommentsForPost(Integer postId);
 
     void deleteComment(User user, Integer postId, Integer commentId);
-    List<Comment> getAllCommentForPost(Integer postId);
+    List<CommentDTO> getAllCommentForPost(Integer postId);
 }

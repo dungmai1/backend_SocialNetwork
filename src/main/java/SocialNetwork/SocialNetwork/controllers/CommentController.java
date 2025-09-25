@@ -4,6 +4,7 @@ import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.CommentService;
 import SocialNetwork.SocialNetwork.services.UserService;
@@ -52,9 +53,9 @@ public class CommentController {
             return new ResponseEntity<>(new ApiResponse(false,e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/getAllCommentForPost")
-    public List<Comment> getAllCommentForPost(Integer PostId){
-        List<Comment> commentList = commentService.getAllCommentForPost(PostId);
+    @GetMapping("/getAllCommentForPost/{postId}")
+    public List<CommentDTO> getAllCommentForPost(@PathVariable Integer postId){
+        List<CommentDTO> commentList = commentService.getAllCommentForPost(postId);
         return commentList;
     }
 }
