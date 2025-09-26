@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface LikeService {
     boolean addLike(Integer postId, User user);
-    int getAllLikesForPost(Integer postId);
+    Long getLikeCount(Long postId);
     List<User> getAllUserLikePost(Integer postId);
 }

@@ -37,7 +37,7 @@ public class PostController {
     }
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deletePost(@RequestHeader("Authorization") String jwt,
-                                                  Integer PostId){
+                                                  Long PostId){
         try{
             User user = userService.findUserByJwt(jwt);
             postService.deletePost(user,PostId);
@@ -54,7 +54,7 @@ public class PostController {
     }
     @GetMapping("/GetSinglePost")
     public PostDTO getSinglePost(@RequestHeader("Authorization") String jwt,
-                                          Integer PostId){
+                                          Long PostId){
         User user = userService.findUserByJwt(jwt);
         PostDTO PostDTO = postService.getSinglePost(user,PostId);
         return PostDTO;
@@ -66,7 +66,7 @@ public class PostController {
         return PostDTOList;
     }
     @PostMapping("/Save")
-    public ResponseEntity<ApiResponse> savePost(Integer PostId,@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<ApiResponse> savePost(Long PostId,@RequestHeader("Authorization") String jwt) {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.savePost(user,PostId);
@@ -97,7 +97,7 @@ public class PostController {
         return PostDTOList;
     }
     @PutMapping("/banPost")
-    public ResponseEntity<ApiResponse> banPost(Integer postId){
+    public ResponseEntity<ApiResponse> banPost(Long postId){
         try{
             postService.BanPost(postId);
             return new ResponseEntity<>(new ApiResponse(true, "Ban Post success"), HttpStatus.OK);
@@ -106,7 +106,7 @@ public class PostController {
         }
     }
     @PutMapping("/unbanPost")
-    public ResponseEntity<ApiResponse> unbanPost(Integer postId){
+    public ResponseEntity<ApiResponse> unbanPost(Long postId){
         try{
             postService.unbanPost(postId);
             return new ResponseEntity<>(new ApiResponse(true, "UnBan Post success"), HttpStatus.OK);

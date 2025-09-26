@@ -6,17 +6,19 @@ import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.LikeRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
-import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.LikeService;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@EnableCaching
 public class LikeServiceImpl implements LikeService {
-    private LikeRepository likeRepository;
-    private PostRepository postRepository;
+    private final LikeRepository likeRepository;
+    private final PostRepository postRepository;
 
     public LikeServiceImpl(LikeRepository likeRepository, PostRepository postRepository) {
         this.likeRepository = likeRepository;
@@ -25,28 +27,28 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public boolean addLike(Integer postId, User user) throws CustomException {
-        Post post = postRepository.findById(postId).orElse(null);
-        if ( post == null) {
-            throw new CustomException("PostId not found");
-        }
-        Like checkLike = likeRepository.findByUserAndPost(user, post);
-        if ( checkLike != null ) {
-            post.setLikeCount(post.getLikeCount() - 1); ;
-            postRepository.save(post);
-            likeRepository.delete(checkLike);
-        }else {
-            Like like = new Like();
-            like.setUser(user);
-            like.setPost(post);
-            post.setLikeCount(post.getLikeCount() + 1);
-            postRepository.save(post);
-            likeRepository.save(like);
-        }
+        // Post post = postRepository.findById(postId).orElse(null);
+        // if ( post == null) {
+        //     throw new CustomException("PostId not found");
+        // }
+        // Like checkLike = likeRepository.findByUserAndPost(user, post);
+        // if ( checkLike != null ) {
+        //     post.setLikeCount(post.getLikeCount() - 1); ;
+        //     postRepository.save(post);
+        //     likeRepository.delete(checkLike);
+        // }else {
+        //     Like like = new Like();
+        //     like.setUser(user);
+        //     like.setPost(post);
+        //     post.setLikeCount(post.getLikeCount() + 1);
+        //     postRepository.save(post);
+        //     likeRepository.save(like);
+        // }
         return true;
     }
-
+    @Cacheable("likes")
     @Override
-    public int getAllLikesForPost(Integer postId) throws CustomException{
+    public Long getLikeCount(Long postId) throws CustomException{
         Post post = this.postRepository.findById(postId).orElse(null);
         if (post == null) {
             throw new CustomException("Post not exists");

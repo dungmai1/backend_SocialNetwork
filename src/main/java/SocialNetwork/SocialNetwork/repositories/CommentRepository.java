@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Integer> {
     List<Comment> findAllByPost(Post post);
-    Comment findByUserAndPostAndAndId(User user, Post post, Integer CommentId);
+    Comment findByUserAndPostAndId(User user, Post post, Long commentId);
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.post = :post")
     int countByPost(@Param("post") Post post);
 }

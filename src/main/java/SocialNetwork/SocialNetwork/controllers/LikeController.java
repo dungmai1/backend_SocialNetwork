@@ -32,12 +32,12 @@ public class LikeController {
         }
     }
     @GetMapping("/CountAllLikeForPost")
-    public ResponseEntity allLikeForPost(Integer PostId) {
+    public ResponseEntity<Long> allLikeForPost(Long postId) {
         try {
-            Integer countLike = likeService.getAllLikesForPost(PostId);
+            Long countLike = likeService.getLikeCount(postId);
             return ResponseEntity.ok(countLike);
         } catch (CustomException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(0L);
         }
     }
     @GetMapping("/AllUserLikePost")

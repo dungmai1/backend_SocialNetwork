@@ -57,14 +57,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean deletePost(User user, Integer PostId) throws CustomException {
+    public boolean deletePost(User user, Long PostId) throws CustomException {
         Post PostToRemove = postRepository.findById(PostId).orElse(null);
         postRepository.delete(PostToRemove);
         return true;
     }
 
     @Override
-    public PostDTO getSinglePost(User user,Integer postId) {
+    public PostDTO getSinglePost(User user, Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
         return PostDTO;
@@ -84,7 +84,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean savePost(User user, Integer postId) {
+    public boolean savePost(User user, Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             return false;
@@ -160,7 +160,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void BanPost(Integer postId) {
+    public void BanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if(post==null){
             throw new CustomException("Post not found");
@@ -170,7 +170,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void unbanPost(Integer postId) {
+    public void unbanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if(post==null){
             throw new CustomException("Post not found");

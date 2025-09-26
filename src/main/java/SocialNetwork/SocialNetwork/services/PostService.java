@@ -8,12 +8,12 @@ import java.util.List;
 public interface PostService {
     public PostDTO createPost(PostRequest PostRequest, User user);
     public List<PostDTO> getAllPostsByUser(User user);
-    public boolean deletePost(User user,Integer PostId);
+    public boolean deletePost(User user, Long PostId);
 
-    PostDTO getSinglePost(User user, Integer postId);
+    PostDTO getSinglePost(User user, Long postId);
     public List<PostDTO> getAllPosts(User user,Integer status);
 
-    public boolean savePost(User user, Integer postId);
+    public boolean savePost(User user, Long postId);
     public List<PostDTO> GetAllSavedPost(User user);
 
     List<PostDTO> getAllPostsByUsername(String username);
@@ -22,9 +22,9 @@ public interface PostService {
 
     List<PostDTO> GetAllPostByFollowing(String username);
 
-    void BanPost(Integer postId);
+    void BanPost(Long postId);
 
-    void unbanPost(Integer postId);
+    void unbanPost(Long postId);
     public List<PostDTO> getAllPostBan(User user,Integer status);
 
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class CommentRequest {
-    private Integer postId;
+    private Long postId;
     private String contentCmt;
     private String imageUrl;
 }

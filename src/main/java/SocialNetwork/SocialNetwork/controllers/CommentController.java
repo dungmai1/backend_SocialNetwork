@@ -34,7 +34,7 @@ public class CommentController {
         }
     }
     @GetMapping("/CountAllCommentForPost")
-    public ResponseEntity CountComment(Integer PostId) {
+    public ResponseEntity CountComment(Long PostId) {
         try {
             Integer countComment = commentService.CountAllCommentsForPost(PostId);
             return ResponseEntity.ok(countComment);
@@ -44,7 +44,7 @@ public class CommentController {
     }
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deleteComment(@RequestHeader("Authorization") String jwt,
-                                                     Integer PostId, Integer CommentId) {
+                                                     Long PostId, Long CommentId) {
         try{
             User user = userService.findUserByJwt(jwt);
             commentService.deleteComment(user,PostId,CommentId);
@@ -54,7 +54,7 @@ public class CommentController {
         }
     }
     @GetMapping("/getAllCommentForPost/{postId}")
-    public List<CommentDTO> getAllCommentForPost(@PathVariable Integer postId){
+    public List<CommentDTO> getAllCommentForPost(@PathVariable Long postId){
         List<CommentDTO> commentList = commentService.getAllCommentForPost(postId);
         return commentList;
     }

@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface CommentService {
     boolean addComment(CommentRequest CommentRequest, User user);
-    int CountAllCommentsForPost(Integer postId);
+    int CountAllCommentsForPost(Long postId);
 
-    void deleteComment(User user, Integer postId, Integer commentId);
-    List<CommentDTO> getAllCommentForPost(Integer postId);
+    void deleteComment(User user, Long postId, Long commentId);
+    List<CommentDTO> getAllCommentForPost(Long postId);
 }
