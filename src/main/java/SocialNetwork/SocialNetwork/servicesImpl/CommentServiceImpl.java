@@ -75,7 +75,8 @@ public class CommentServiceImpl implements CommentService {
                 c.getId(),
                 c.getContent(),
                 c.getPost().getId(),
-                c.getUser().getId(),
+                c.getUser().getDisplayname(),
+                c.getUser().getAvatar(),
                 c.getImageUrl(),
                 c.getCommentTime()
             ))
