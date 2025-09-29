@@ -9,7 +9,11 @@ import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.CommentRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.services.CommentService;
+
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,6 +33,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Caching(evict = {
+        @CacheEvict(value = "comments", key = "#postId"),
+        @CacheEvict(value = "commentLists", key = "#postId")
+    })
     public boolean addComment(CommentRequest commentRequest, User user) {
         Post post = postRepository.findById(commentRequest.getPostId()).orElse(null);
         if(post == null) {
@@ -45,6 +53,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Cacheable(value = "comments", key = "#postId")
     public int CountAllCommentsForPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if(post == null){
@@ -54,6 +63,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @CacheEvict(value = "commentLists", key = "#postId")
     public void deleteComment(User user, Long postId, Long commentId) {
         Post post = postRepository.findById(postId).orElse(null);
         if( post == null) {
@@ -64,6 +74,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Cacheable(value = "commentLists", key = "#postId")
     public List<CommentDTO> getAllCommentForPost(Long postId) {
         Post post = postRepository.findById(postId).get();
         if(post == null) {
