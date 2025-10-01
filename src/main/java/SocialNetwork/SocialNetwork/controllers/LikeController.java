@@ -21,8 +21,8 @@ public class LikeController {
     private LikeService likeService;
     @Autowired
     private UserService userService;
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addLike(@RequestHeader("Authorization") String jwt,
+    @PostMapping("post/add")
+    public ResponseEntity<ApiResponse> addLikePost(@RequestHeader("Authorization") String jwt,
                                                Long postId){
         try{
             User user = userService.findUserByJwt(jwt);
@@ -32,7 +32,7 @@ public class LikeController {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/count")
+    @GetMapping("post/count")
     public ResponseEntity<Long> allLikeForPost(Long postId) {
         try {
             Long countLike = likeService.getPostLikeCount(postId);
@@ -41,9 +41,34 @@ public class LikeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(0L);
         }
     }
-    @GetMapping("/users")
+    @GetMapping("post/users")
     public List<UserDTO> getAllUserLikePost(Long postId){
         List<UserDTO> userList = likeService.getAllUserLikePost(postId);
+        return userList;
+    }
+    @PostMapping("comment/add")
+    public ResponseEntity<ApiResponse> addLikeComment(@RequestHeader("Authorization") String jwt,
+                                               Long commentId){
+        try{
+            User user = userService.findUserByJwt(jwt);
+            likeService.addLikeComment(commentId,user);
+            return new ResponseEntity<>(new ApiResponse(true,"Like success"), HttpStatus.CREATED);
+        }catch (CustomException e){
+            return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("comment/count")
+    public ResponseEntity<Long> allLikeForComment(Long commentId) {
+        try {
+            Long countLike = likeService.getCommentLikeCount(commentId);
+            return ResponseEntity.ok(countLike);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(0L);
+        }
+    }
+    @GetMapping("comment/users")
+    public List<UserDTO> getAllUserLikeComment(Long commentId){
+        List<UserDTO> userList = likeService.getAllUserLikeComment(commentId);
         return userList;
     }
 }

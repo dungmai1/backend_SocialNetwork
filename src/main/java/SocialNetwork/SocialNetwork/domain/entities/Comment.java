@@ -1,13 +1,9 @@
 package SocialNetwork.SocialNetwork.domain.entities;
-
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @Entity
 @Data
 @Table(name = "Comments")
@@ -25,6 +21,7 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
+    private Long parentId;
     private String imageUrl;
     private LocalDateTime commentTime;
 }

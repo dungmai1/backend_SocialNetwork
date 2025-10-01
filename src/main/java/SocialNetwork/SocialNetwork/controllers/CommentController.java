@@ -3,6 +3,7 @@ package SocialNetwork.SocialNetwork.controllers;
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.RepCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.CommentService;
@@ -22,23 +23,23 @@ public class CommentController {
     @Autowired
     private UserService userService;
     @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createComment(@RequestBody CommentRequest CommentRequest,
+    public ResponseEntity createComment(@RequestBody CommentRequest CommentRequest,
                                                      @RequestHeader("Authorization") String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
-            commentService.addComment(CommentRequest,user);
-            return new ResponseEntity<>(new ApiResponse(true,"Add Comment Success"), HttpStatus.CREATED);
+            CommentDTO commentDTO = commentService.addComment(CommentRequest,user);
+            return new ResponseEntity<>(commentDTO, HttpStatus.CREATED);
         }catch (CustomException e){
-            return new ResponseEntity<>(new ApiResponse(false,e.getMessage()), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
     @GetMapping("/count")
     public ResponseEntity CountComment(Long postId) {
         try {
             Integer countComment = commentService.CountAllCommentsForPost(postId);
-            return ResponseEntity.ok(countComment);
+            return new ResponseEntity<>(countComment, HttpStatus.OK);
         } catch (CustomException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
     @DeleteMapping("/delete")
@@ -56,5 +57,30 @@ public class CommentController {
     public List<CommentDTO> getAllCommentForPost(Long postId){
         List<CommentDTO> commentList = commentService.getAllCommentForPost(postId);
         return commentList;
+    }
+    @PostMapping("/replies/create")
+    public ResponseEntity createReply(@RequestBody RepCommentRequest repCommentRequest,
+                                                     @RequestHeader("Authorization") String jwt){
+        try{
+            User user = userService.findUserByJwt(jwt);
+            CommentDTO commentDTO = commentService.addRepComment(repCommentRequest,user);
+            return new ResponseEntity<>(commentDTO, HttpStatus.CREATED);
+        }catch (CustomException e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/replies/count")
+    public ResponseEntity CountReply(Long commentId) {
+        try {
+            Integer countReply = commentService.CountAllRepComment(commentId);
+            return new ResponseEntity<>(countReply, HttpStatus.OK);
+        } catch (CustomException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+    @GetMapping("/replies")
+    public List<CommentDTO> getAllReplyForComment(Long commentId){
+        List<CommentDTO> replyList = commentService.getAllRepComment(commentId);
+        return replyList;
     }
 }

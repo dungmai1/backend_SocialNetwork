@@ -121,7 +121,7 @@ public class LikeServiceImpl implements LikeService {
         return this.likeRepository.countLikes(comment.getId(), TargetType.COMMENT);
     }
         @Override
-    @Cacheable(value = "post:likeUsers", key = "#postId")
+    @Cacheable(value = "comment:likeUsers", key = "#commentId")
     public List<UserDTO> getAllUserLikeComment(Long commentId) throws CustomException{
         Comment comment = commentRepository.findById(commentId).orElse(null);
         if (comment == null) {

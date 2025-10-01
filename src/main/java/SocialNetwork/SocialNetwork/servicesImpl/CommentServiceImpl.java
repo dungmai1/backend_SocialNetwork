@@ -4,6 +4,7 @@ import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.Post;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.RepCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.CommentRepository;
@@ -34,10 +35,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Caching(evict = {
-        @CacheEvict(value = "comments", key = "#postId"),
-        @CacheEvict(value = "commentLists", key = "#postId")
+        @CacheEvict(value = "comments:postId", key = "#postId"),
+        @CacheEvict(value = "commentLists:postId", key = "#postId")
     })
-    public boolean addComment(CommentRequest commentRequest, User user) {
+    public CommentDTO addComment(CommentRequest commentRequest, User user) {
         Post post = postRepository.findById(commentRequest.getPostId()).orElse(null);
         if(post == null) {
             throw new CustomException("PostId not found");
@@ -49,11 +50,19 @@ public class CommentServiceImpl implements CommentService {
         comment.setImageUrl(commentRequest.getImageUrl());
         comment.setCommentTime(LocalDateTime.now());
         commentRepository.save(comment);
-        return true;
+        return new CommentDTO(
+            comment.getId(),
+            comment.getContent(),
+            comment.getPost().getId(),
+            comment.getUser().getDisplayname(),
+            comment.getUser().getAvatar(),
+            comment.getImageUrl(),
+            comment.getCommentTime()
+        );
     }
 
     @Override
-    @Cacheable(value = "comments", key = "#postId")
+    @Cacheable(value = "comments:postId", key = "#postId")
     public int CountAllCommentsForPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if(post == null){
@@ -63,7 +72,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @CacheEvict(value = "commentLists", key = "#postId")
+    @Caching(evict = {
+        @CacheEvict(value = "comments:postId", key = "#postId"),
+        @CacheEvict(value = "commentLists:postId", key = "#postId")
+    })
     public void deleteComment(User user, Long postId, Long commentId) {
         Post post = postRepository.findById(postId).orElse(null);
         if( post == null) {
@@ -72,15 +84,70 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findByUserAndPostAndId(user, post, commentId);
         commentRepository.delete(comment);
     }
-
     @Override
-    @Cacheable(value = "commentLists", key = "#postId")
+    @Cacheable(value = "commentLists:postId", key = "#postId")
     public List<CommentDTO> getAllCommentForPost(Long postId) {
-        Post post = postRepository.findById(postId).get();
+        Post post = postRepository.findById(postId).orElse(null);
         if(post == null) {
             throw new CustomException("userId or PostId not found");
         }
         List<Comment> commentList = commentRepository.findAllByPost(post);
+        return commentList.stream()
+            .map(c -> new CommentDTO(
+                c.getId(),
+                c.getContent(),
+                c.getPost().getId(),
+                c.getUser().getDisplayname(),
+                c.getUser().getAvatar(),
+                c.getImageUrl(),
+                c.getCommentTime()
+            ))
+            .collect(Collectors.toList());
+    }
+    @Override
+    @Caching(evict = {
+        @CacheEvict(value = "replies:commentId", key = "#repCommentRequest.commentId"),
+        @CacheEvict(value = "repliesLists:commentId", key = "#repCommentRequest.commentId")
+    })
+    public CommentDTO addRepComment(RepCommentRequest repCommentRequest, User user){
+        Comment parentComment = commentRepository.findById(repCommentRequest.getCommentId()).orElse(null);
+        if(parentComment == null) {
+            throw new CustomException("CommentId not found");
+        }
+        Comment replyComment = new Comment();
+        replyComment.setContent(repCommentRequest.getContent());
+        replyComment.setPost(parentComment.getPost());
+        replyComment.setUser(user);
+        replyComment.setParentId(parentComment.getId());
+        replyComment.setCommentTime(LocalDateTime.now());
+        commentRepository.save(replyComment);
+        return new CommentDTO(
+            replyComment.getId(),
+            replyComment.getContent(),
+            replyComment.getPost().getId(),
+            replyComment.getUser().getDisplayname(),
+            replyComment.getUser().getAvatar(),
+            replyComment.getImageUrl(),
+            replyComment.getCommentTime()
+        );
+    }
+    @Override
+    @Cacheable(value = "replies:commentId", key = "#commentId")
+    public int CountAllRepComment(Long commentId) {
+        Comment parentComment = commentRepository.findById(commentId).orElse(null);
+        if(parentComment == null) {
+            throw new CustomException("CommentId not found");
+        }
+        return this.commentRepository.countRepComment(commentId);
+    }
+    @Override
+    @Cacheable(value = "repliesLists:commentId", key = "#commentId")
+    public List<CommentDTO> getAllRepComment(Long commentId){
+        Comment parentComment = commentRepository.findById(commentId).orElse(null);
+        if(parentComment == null) {
+            throw new CustomException("CommentId not found");
+        }
+        List<Comment> commentList = commentRepository.findAllByRepComment(parentComment.getPost(), commentId);
         return commentList.stream()
             .map(c -> new CommentDTO(
                 c.getId(),
