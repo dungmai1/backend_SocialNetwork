@@ -23,7 +23,7 @@ public class CommentController {
     @Autowired
     private UserService userService;
     @PostMapping("/create")
-    public ResponseEntity createComment(@RequestBody CommentRequest CommentRequest,
+    public ResponseEntity<?> createComment(@RequestBody CommentRequest CommentRequest,
                                                      @RequestHeader("Authorization") String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
@@ -34,7 +34,7 @@ public class CommentController {
         }
     }
     @GetMapping("/count")
-    public ResponseEntity CountComment(Long postId) {
+    public ResponseEntity<?> CountComment(Long postId) {
         try {
             Integer countComment = commentService.CountAllCommentsForPost(postId);
             return new ResponseEntity<>(countComment, HttpStatus.OK);
@@ -59,7 +59,7 @@ public class CommentController {
         return commentList;
     }
     @PostMapping("/replies/create")
-    public ResponseEntity createReply(@RequestBody RepCommentRequest repCommentRequest,
+    public ResponseEntity<?> createReply(@RequestBody RepCommentRequest repCommentRequest,
                                                      @RequestHeader("Authorization") String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
@@ -70,7 +70,7 @@ public class CommentController {
         }
     }
     @GetMapping("/replies/count")
-    public ResponseEntity CountReply(Long commentId) {
+    public ResponseEntity<?> CountReply(Long commentId) {
         try {
             Integer countReply = commentService.CountAllRepComment(commentId);
             return new ResponseEntity<>(countReply, HttpStatus.OK);

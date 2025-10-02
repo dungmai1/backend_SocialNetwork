@@ -14,18 +14,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfiguration {
     
     private final JwtAuthFilter jwtAuthFilter;
-    
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    public SecurityConfiguration (JwtAuthFilter jwtAuthFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler){
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable) 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**","/api/v1/auth/**","/login_google","/home").permitAll()
+                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**","/api/v1/auth/**","/login_google").permitAll()
                         .requestMatchers("/like/CountAllLikeForPost/**",
                                 "/like/AllUserLikePost/**",
                                 "/comment/CountAllCommentForPost",
@@ -42,10 +45,9 @@ public class SecurityConfiguration {
                                 "/comment/countAllComment").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                // .oauth2Login(oauth2 -> oauth2
-                //         .loginPage("/login_google")
-                //         .defaultSuccessUrl("/home", true)
-                // )  
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(customOAuth2SuccessHandler)
+                )  
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )

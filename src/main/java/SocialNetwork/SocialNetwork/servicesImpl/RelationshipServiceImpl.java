@@ -19,8 +19,8 @@ public class RelationshipServiceImpl implements RelationshipService {
     }
 
     @Override
-    public boolean CreateRequestAddingFriend(User user, String username) throws CustomException{
-        User friendCandidate = userRepository.findByUsername(username).orElse(null);
+    public boolean addFollow(User user, Long userId) throws CustomException{
+        User friendCandidate = userRepository.findById(userId).orElse(null);
         if( friendCandidate == null || friendCandidate == user ) {
             throw new CustomException("User not found");
         }
@@ -40,32 +40,22 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public List<User> getFollower(String username) {
-        // User user = userRepository.findByUsername(username).orElse(null);
-        // if (user == null) {
-        //     return new ArrayList<>();
-        // }
-        // List<Relationship> relationshipList = relationshipRepository.findAllByUserTwo(user);
-        // List<User> users = new ArrayList<>();
-        // for (Relationship relationship : relationshipList) {
-        //     users.add(relationship.getUserOne());
-        // }
-        // return users;
-        return null;
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            throw new CustomException("User not found");
+        }
+        List<Long> followerIds = relationshipRepository.findAllByUserTwo(user);
+        return userRepository.findAllById(followerIds);
     }
 
     @Override
     public List<User> getFollowing(String username) {
-        // User user = userRepository.findByUsername(username).orElse(null);
-        // if (user == null) {
-        //     return new ArrayList<>();
-        // }
-        // List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
-        // List<User> users = new ArrayList<>();
-        // for (Relationship relationship : relationshipList) {
-        //     users.add(relationship.getUserTwo());
-        // }
-        // return users;
-        return null;
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            throw new CustomException("User not found");
+        }
+        List<Long> followingIds = relationshipRepository.findAllByUserOne(user);
+        return userRepository.findAllById(followingIds);
     }
 
     @Override
@@ -94,4 +84,13 @@ public class RelationshipServiceImpl implements RelationshipService {
 //        }
 //        return users;
 //    }
+    @Override
+    public Long countFollower(Long userId) {
+        return relationshipRepository.countFollower(userId);
+    }
+
+    @Override
+    public Long countFollowing(Long userId) {
+        return relationshipRepository.countFollowing(userId);
+    }
 }
