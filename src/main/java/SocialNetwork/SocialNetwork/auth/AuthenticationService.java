@@ -4,7 +4,16 @@ import SocialNetwork.SocialNetwork.domain.entities.Role;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Duration;
+import java.util.Arrays;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,15 +49,25 @@ public class AuthenticationService {
                     .build();
         }
     }
-    public AuthenticationResponse login (LoginRequest request){
+    public AuthenticationResponse login (LoginRequest request, HttpServletResponse response){
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
         
         if (checkUsername == null) {
             throw new CustomException("Username not found");
         }else{
             if(passwordEncoder.matches(request.getPassword(),checkUsername.getPassword())){
+                String accessToken = jwtService.generateToken(checkUsername.getUsername(),15);
+                String refreshToken = jwtService.generateToken(checkUsername.getUsername(),10080);
+                ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)              // HTTPS
+                    .path("/api/auth/refresh") // cookie chỉ gửi khi gọi /refresh
+                    .sameSite("None")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
                 return AuthenticationResponse.builder()
-                        .token(jwtService.generateToken(checkUsername.getUsername()))
+                        .accessToken(accessToken)
                         .message("Login successful")
                         .build();
             }else{
@@ -56,5 +75,19 @@ public class AuthenticationService {
             }
         }
     }
-    
+    public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response){
+        String refreshToken = Arrays.stream(request.getCookies())
+            .filter(c -> c.getName().equals("refreshToken"))
+            .findFirst()
+            .map(Cookie::getValue)
+            .orElseThrow(() -> new RuntimeException("No refresh token"));
+        String username = jwtService.validateToken(refreshToken);
+        if (username == null) {
+            throw new CustomException("Invalid JWT token");
+        }
+        return AuthenticationResponse.builder()
+                .accessToken(jwtService.generateToken(username,15))
+                .message("Get refreshToken successful")
+                .build();
+    }
 }

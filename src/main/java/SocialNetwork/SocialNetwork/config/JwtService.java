@@ -29,14 +29,14 @@ public class JwtService {
     }
 
     // Tạo token
-    public String generateToken(String username) {
+    public String generateToken(String subject, long expirationMinutes) {
         try {
             JWSHeader header = new JWSHeader(JWSAlgorithm.RS256);
-            long sevenDaysMillis = 7L * 24 * 60 * 60 * 1000;
+            long expirationMillis = expirationMinutes * 60 * 1000;
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .subject(username)
-                .issuer("my-app")
-                .expirationTime(new Date(System.currentTimeMillis() + sevenDaysMillis)) // 7 ngày
+                .subject(subject)
+                .issuer("social-network")
+                .expirationTime(new Date(System.currentTimeMillis() + expirationMillis)) // 7 ngày
                 .build();
 
                 SignedJWT signedJWT = new SignedJWT(header, claims);
@@ -53,7 +53,20 @@ public class JwtService {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             boolean verified = signedJWT.verify(new RSASSAVerifier((RSAPublicKey) keyPair.getPublic()));
-
+            if (!verified) {
+                System.out.println("❌ Invalid signature");
+                return null;
+            }
+            JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+            if(!"social-network".equals(claims.getIssuer())){
+                System.out.println("❌ Invalid issuer: " + claims.getIssuer());
+                return null;
+            }
+            Date now = new Date();
+            if(claims.getExpirationTime() == null || now.after(claims.getExpirationTime())){
+                System.out.println("❌ Token expired");
+                return null;
+            }
             if (verified && new Date().before(signedJWT.getJWTClaimsSet().getExpirationTime())) {
                 return signedJWT.getJWTClaimsSet().getSubject(); // username
             }

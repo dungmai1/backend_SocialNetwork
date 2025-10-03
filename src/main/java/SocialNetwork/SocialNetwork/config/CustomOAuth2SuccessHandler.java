@@ -10,7 +10,9 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+import SocialNetwork.SocialNetwork.domain.entities.Role;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.entities.UserProvider;
 import SocialNetwork.SocialNetwork.repositories.UserProviderRepository;
@@ -20,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
+@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -51,19 +54,24 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             newUser.setDisplayname(name);
             newUser.setAvatar(avatar);
             newUser.setGmail(email);
+            newUser.setRole(Role.ROLE_USER);
             newUser.setStatus(1);
             newUser.setProvider(userProvider);
             userRepository.save(newUser);
         }
-        String jwt = jwtService.generateToken(email);
-        ResponseCookie cookie = ResponseCookie.from("accessToken", jwt)
-        .httpOnly(true)      
-        .secure(false)         
-        .path("/")
-        .sameSite("None")     
-        .maxAge(Duration.ofHours(12))
-        .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        response.sendRedirect("/home");
+        String accessToken = jwtService.generateToken(email, 15);
+        String refreshToken = jwtService.generateToken(email,10080);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+            .httpOnly(true)
+            .secure(false)              
+            .path("/api/auth/refresh") 
+            .sameSite("None")
+            .maxAge(Duration.ofDays(7))
+            .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String json = String.format("{\"accessToken\": \"%s\"}", accessToken);
+        response.getWriter().write(json);
     }
 }

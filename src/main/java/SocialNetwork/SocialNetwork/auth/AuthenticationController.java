@@ -1,5 +1,7 @@
 package SocialNetwork.SocialNetwork.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.register(request));
     }
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(service.login(request));
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(service.login(request, response));
+    }
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(service.refreshToken(request, response));
     }
 }
