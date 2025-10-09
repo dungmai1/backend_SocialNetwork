@@ -2,9 +2,16 @@ package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.User;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
+import SocialNetwork.SocialNetwork.repositories.PostRepository;
+import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
+import SocialNetwork.SocialNetwork.repositories.SavedRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.UserService;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +24,11 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private JwtService jwtService;
-    
+    private final ModelMapper modelMapper;
+    public UserServiceImpl(UserRepository userRepository,JwtService jwtService ,ModelMapper modelMapper) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+    }
     @Override
     public User findUserByJwt(String jwt) {
         // Remove "Bearer " prefix if present
@@ -39,6 +50,24 @@ public class UserServiceImpl implements UserService {
         }
         
         return user;
+    }
+
+    @Override
+    public UserDTO findUser(String token) {
+        // Validate token and get username
+        String username = jwtService.validateToken(token);
+        if (username == null) {
+            throw new CustomException("Invalid JWT token");
+        }
+        
+        // Find user by username
+        User user = userRepository.findByUsername(username).orElse(null);
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        if (user == null) {
+            throw new CustomException("User not found for token");
+        }
+        
+        return userDTO;
     }
 
     @Override

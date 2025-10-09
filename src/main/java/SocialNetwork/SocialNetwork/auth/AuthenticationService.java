@@ -13,9 +13,11 @@ import java.time.Duration;
 import java.util.Arrays;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
@@ -58,14 +60,22 @@ public class AuthenticationService {
             if(passwordEncoder.matches(request.getPassword(),checkUsername.getPassword())){
                 String accessToken = jwtService.generateToken(checkUsername.getUsername(),15);
                 String refreshToken = jwtService.generateToken(checkUsername.getUsername(),10080);
-                ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                     .httpOnly(true)
-                    .secure(false)              // HTTPS
-                    .path("/api/auth/refresh") // cookie chỉ gửi khi gọi /refresh
+                    .secure(false)             
+                    .path("/") 
                     .sameSite("None")
                     .maxAge(Duration.ofDays(7))
                     .build();
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)             
+                    .path("/api/auth/refresh") 
+                    .sameSite("None")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+                response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
                 return AuthenticationResponse.builder()
                         .accessToken(accessToken)
                         .message("Login successful")
@@ -76,11 +86,10 @@ public class AuthenticationService {
         }
     }
     public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response){
-        String refreshToken = Arrays.stream(request.getCookies())
-            .filter(c -> c.getName().equals("refreshToken"))
-            .findFirst()
-            .map(Cookie::getValue)
-            .orElseThrow(() -> new RuntimeException("No refresh token"));
+        String refreshToken = extractCookie(request,"refreshToken");
+        if (refreshToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing refresh token");
+        }
         String username = jwtService.validateToken(refreshToken);
         if (username == null) {
             throw new CustomException("Invalid JWT token");
@@ -90,4 +99,15 @@ public class AuthenticationService {
                 .message("Get refreshToken successful")
                 .build();
     }
+    public String extractCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+
+        return Arrays.stream(cookies)
+            .filter(c -> name.equals(c.getName()))
+            .findFirst()
+            .map(Cookie::getValue)
+            .orElse(null);
+    }
+
 }

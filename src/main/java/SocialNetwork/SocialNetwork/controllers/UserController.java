@@ -2,6 +2,7 @@ package SocialNetwork.SocialNetwork.controllers;
 
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.User;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +12,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserService userService;
-    @GetMapping("/")
-    public User getUser(@RequestHeader("Authorization") String jwt){
-        User user = userService.findUserByJwt(jwt);
+    @GetMapping
+    public UserDTO getUser(@CookieValue(value = "accessToken", required = false) String token){
+        UserDTO user = userService.findUser(token);
         return user;
     }
     @GetMapping("/{username}")
