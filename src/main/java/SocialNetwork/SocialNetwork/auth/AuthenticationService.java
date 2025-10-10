@@ -64,14 +64,14 @@ public class AuthenticationService {
                     .httpOnly(true)
                     .secure(false)             
                     .path("/") 
-                    .sameSite("None")
+                    .sameSite("Lax")
                     .maxAge(Duration.ofDays(7))
                     .build();
                 ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(false)             
-                    .path("/api/auth/refresh") 
-                    .sameSite("None")
+                    .path("/api/v1/auth/refresh") 
+                    .sameSite("Lax")
                     .maxAge(Duration.ofDays(7))
                     .build();
                 response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -94,8 +94,17 @@ public class AuthenticationService {
         if (username == null) {
             throw new CustomException("Invalid JWT token");
         }
+        String accessToken = jwtService.generateToken(username,15);
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+            .httpOnly(true)
+            .secure(false)             
+            .path("/") 
+            .sameSite("Lax")
+            .maxAge(Duration.ofDays(7))
+            .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         return AuthenticationResponse.builder()
-                .accessToken(jwtService.generateToken(username,15))
+                .accessToken(accessToken)
                 .message("Get refreshToken successful")
                 .build();
     }

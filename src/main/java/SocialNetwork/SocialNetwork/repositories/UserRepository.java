@@ -1,7 +1,6 @@
 package SocialNetwork.SocialNetwork.repositories;
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

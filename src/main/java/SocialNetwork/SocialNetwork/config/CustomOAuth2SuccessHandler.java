@@ -54,6 +54,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             newUser.setDisplayname(name);
             newUser.setAvatar(avatar);
             newUser.setGmail(email);
+            newUser.setUsername(email);
             newUser.setRole(Role.ROLE_USER);
             newUser.setStatus(1);
             newUser.setProvider(userProvider);
@@ -61,17 +62,22 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         }
         String accessToken = jwtService.generateToken(email, 15);
         String refreshToken = jwtService.generateToken(email,10080);
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-            .httpOnly(true)
-            .secure(false)              
-            .path("/api/auth/refresh") 
-            .sameSite("None")
-            .maxAge(Duration.ofDays(7))
-            .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        String json = String.format("{\"accessToken\": \"%s\"}", accessToken);
-        response.getWriter().write(json);
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                    .httpOnly(true)
+                    .secure(false)             
+                    .path("/") 
+                    .sameSite("Lax")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                    .httpOnly(true)
+                    .secure(false)             
+                    .path("/api/v1/auth/refresh") 
+                    .sameSite("Lax")
+                    .maxAge(Duration.ofDays(7))
+                    .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        response.sendRedirect("http://localhost:3000/home");
     }
 }

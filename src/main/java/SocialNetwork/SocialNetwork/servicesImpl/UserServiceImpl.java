@@ -31,24 +31,16 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public User findUserByJwt(String jwt) {
-        // Remove "Bearer " prefix if present
-        String token = jwt;
-        if (jwt.startsWith("Bearer ")) {
-            token = jwt.substring(7);
-        }
-        
         // Validate token and get username
-        String username = jwtService.validateToken(token);
+        String username = jwtService.validateToken(jwt);
         if (username == null) {
             throw new CustomException("Invalid JWT token");
         }
-        
         // Find user by username
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             throw new CustomException("User not found for token");
         }
-        
         return user;
     }
 

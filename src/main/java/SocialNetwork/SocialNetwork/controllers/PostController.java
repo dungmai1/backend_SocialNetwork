@@ -7,17 +7,13 @@ import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.PostService;
 import SocialNetwork.SocialNetwork.services.UserService;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 @RestController
-@Slf4j
 @RequestMapping("/post")
 public class PostController {
     @Autowired
@@ -47,8 +43,8 @@ public class PostController {
         }
     }
     @GetMapping("/GetAllPostByUser")
-    public List<PostDTO> getAllPostByUser(@RequestHeader("Authorization") String jwt){
-        User user = userService.findUserByJwt(jwt);
+    public List<PostDTO> getAllPostByUser(@CookieValue(value = "accessToken", required = false) String token){
+        User user = userService.findUserByJwt(token);
         List<PostDTO> PostDTOList = postService.getAllPostsByUser(user);
         return PostDTOList;
     }
@@ -60,8 +56,8 @@ public class PostController {
         return PostDTO;
     }
     @GetMapping("/GetAllPost")
-    public List<PostDTO> getAllPost(@RequestHeader("Authorization") String jwt){
-        User user = userService.findUserByJwt(jwt);
+    public List<PostDTO> getAllPost(@CookieValue(value = "accessToken", required = false) String token){
+        User user = userService.findUserByJwt(token);
         List<PostDTO> PostDTOList = postService.getAllPosts(user,1);
         return PostDTOList;
     }
