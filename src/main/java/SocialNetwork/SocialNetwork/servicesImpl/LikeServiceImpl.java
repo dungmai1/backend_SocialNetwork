@@ -46,7 +46,7 @@ public class LikeServiceImpl implements LikeService {
         }
         Like checkLike = likeRepository.findByUserAndTargetType(postId, TargetType.POST, user.getId());
         if ( checkLike != null ) {
-            post.setLikeCount(post.getLikeCount() - 1); ;
+            post.setLikeCount(post.getLikeCount() - 1);
             postRepository.save(post);
             likeRepository.delete(checkLike);
         }else {
@@ -139,4 +139,9 @@ public class LikeServiceImpl implements LikeService {
         }
         return List.of();
     }
+    @Override
+    public  boolean hasUserLiked(Long postId, Long userId){
+        return likeRepository.existsByTargetIdAndTargetTypeAndUser(postId, TargetType.POST, userId);
+    }
+
 }

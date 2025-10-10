@@ -13,4 +13,5 @@ public interface LikeService {
     boolean addLikeComment(Long commentId, User user);
     Long getCommentLikeCount(Long commentId);
     List<UserDTO> getAllUserLikeComment(Long commentId);
+    boolean hasUserLiked(Long postId, Long userId);
 }

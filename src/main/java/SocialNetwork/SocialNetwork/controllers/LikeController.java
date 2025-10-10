@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 
 @RestController
@@ -33,10 +35,16 @@ public class LikeController {
         }
     }
     @GetMapping("post/count")
-    public ResponseEntity<Long> allLikeForPost(Long postId) {
+    public ResponseEntity<?> allLikeForPost(@CookieValue(value = "accessToken", required = false) String token,
+                                            Long postId) {
         try {
+            User user = userService.findUserByJwt(token);
+            Map<String, Object> result = new HashMap<>();
+            boolean liked = likeService.hasUserLiked(postId, user.getId());
             Long countLike = likeService.getPostLikeCount(postId);
-            return ResponseEntity.ok(countLike);
+            result.put("liked", liked);
+            result.put("likeCount", countLike);
+            return ResponseEntity.ok(result);
         } catch (CustomException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(0L);
         }
