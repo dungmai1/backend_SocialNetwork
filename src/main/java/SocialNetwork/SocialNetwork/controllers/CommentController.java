@@ -24,7 +24,7 @@ public class CommentController {
     private UserService userService;
     @PostMapping("/create")
     public ResponseEntity<?> createComment(@RequestBody CommentRequest CommentRequest,
-                                                     @RequestHeader("Authorization") String jwt){
+                                                     @CookieValue(value = "accessToken", required = false)  String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
             CommentDTO commentDTO = commentService.addComment(CommentRequest,user);
@@ -43,7 +43,7 @@ public class CommentController {
         }
     }
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse> deleteComment(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<ApiResponse> deleteComment(@CookieValue(value = "accessToken", required = false)  String jwt,
                                                      Long postId, Long commentId) {
         try{
             User user = userService.findUserByJwt(jwt);
@@ -60,7 +60,7 @@ public class CommentController {
     }
     @PostMapping("/replies/create")
     public ResponseEntity<?> createReply(@RequestBody RepCommentRequest repCommentRequest,
-                                                     @RequestHeader("Authorization") String jwt){
+                                                     @CookieValue(value = "accessToken", required = false)  String jwt){
         try{
             User user = userService.findUserByJwt(jwt);
             CommentDTO commentDTO = commentService.addRepComment(repCommentRequest,user);

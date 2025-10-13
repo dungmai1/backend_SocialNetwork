@@ -22,7 +22,7 @@ public class PostController {
     private UserService userService;
     @PostMapping("/create")
     public ResponseEntity<ApiResponse> createPost(@RequestBody PostRequest PostRequest,
-                                                  @RequestHeader("Authorization") String jwt) {
+                                                  @CookieValue(value = "accessToken", required = false)  String jwt) {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.createPost(PostRequest,user);
@@ -32,7 +32,7 @@ public class PostController {
         }
     }
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse> deletePost(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<ApiResponse> deletePost(@CookieValue(value = "accessToken", required = false)  String jwt,
                                                   Long PostId){
         try{
             User user = userService.findUserByJwt(jwt);
@@ -49,7 +49,7 @@ public class PostController {
         return PostDTOList;
     }
     @GetMapping("/GetSinglePost")
-    public PostDTO getSinglePost(@RequestHeader("Authorization") String jwt,
+    public PostDTO getSinglePost(@CookieValue(value = "accessToken", required = false)  String jwt,
                                           Long PostId){
         User user = userService.findUserByJwt(jwt);
         PostDTO PostDTO = postService.getSinglePost(user,PostId);
@@ -62,7 +62,7 @@ public class PostController {
         return PostDTOList;
     }
     @PostMapping("/Save")
-    public ResponseEntity<ApiResponse> savePost(Long PostId,@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<ApiResponse> savePost(Long PostId,@CookieValue(value = "accessToken", required = false)  String jwt) {
         try{
             User user = userService.findUserByJwt(jwt);
             postService.savePost(user,PostId);
@@ -72,7 +72,7 @@ public class PostController {
         }
     }
     @GetMapping("/GetAllSavedPost")
-    public List<PostDTO> GetAllSavedPost(@RequestHeader("Authorization") String jwt){
+    public List<PostDTO> GetAllSavedPost(@CookieValue(value = "accessToken", required = false)  String jwt){
         User user = userService.findUserByJwt(jwt);
         List<PostDTO> PostDTOList = postService.GetAllSavedPost(user);
         return PostDTOList;
@@ -111,7 +111,7 @@ public class PostController {
         }
     }
     @GetMapping("/getAllPostBan")
-    public List<PostDTO> getAllPostBan(@RequestHeader("Authorization") String jwt){
+    public List<PostDTO> getAllPostBan(@CookieValue(value = "accessToken", required = false)  String jwt){
         User user = userService.findUserByJwt(jwt);
         List<PostDTO> PostDTOList = postService.getAllPostBan(user,2);
         return PostDTOList;

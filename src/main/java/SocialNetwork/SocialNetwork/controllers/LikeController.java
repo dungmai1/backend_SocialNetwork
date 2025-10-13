@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
 
 @RestController
 @RequestMapping("/likes")
@@ -24,7 +23,7 @@ public class LikeController {
     @Autowired
     private UserService userService;
     @PostMapping("post/add")
-    public ResponseEntity<ApiResponse> addLikePost(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<ApiResponse> addLikePost(@CookieValue(value = "accessToken", required = false)  String jwt,
                                                Long postId){
         try{
             User user = userService.findUserByJwt(jwt);
@@ -55,7 +54,7 @@ public class LikeController {
         return userList;
     }
     @PostMapping("comment/add")
-    public ResponseEntity<ApiResponse> addLikeComment(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<ApiResponse> addLikeComment(@CookieValue(value = "accessToken", required = false)  String jwt,
                                                Long commentId){
         try{
             User user = userService.findUserByJwt(jwt);

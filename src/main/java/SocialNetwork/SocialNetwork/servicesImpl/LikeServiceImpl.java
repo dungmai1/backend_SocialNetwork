@@ -46,16 +46,12 @@ public class LikeServiceImpl implements LikeService {
         }
         Like checkLike = likeRepository.findByUserAndTargetType(postId, TargetType.POST, user.getId());
         if ( checkLike != null ) {
-            post.setLikeCount(post.getLikeCount() - 1);
-            postRepository.save(post);
             likeRepository.delete(checkLike);
         }else {
             Like like = new Like();
             like.setUser(user);
             like.setTargetId(postId);
             like.setTargetType(TargetType.POST);
-            post.setLikeCount(post.getLikeCount() + 1);
-            postRepository.save(post);
             likeRepository.save(like);
         }
         return true;

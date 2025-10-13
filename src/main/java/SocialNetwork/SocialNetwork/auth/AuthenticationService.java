@@ -118,5 +118,22 @@ public class AuthenticationService {
             .map(Cookie::getValue)
             .orElse(null);
     }
-
+    public void logout(HttpServletRequest request, HttpServletResponse response){
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", null)
+            .httpOnly(true)
+            .secure(false)             
+            .path("/") 
+            .sameSite("Lax")
+            .maxAge(0)
+            .build();
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)
+            .httpOnly(true)
+            .secure(false)             
+            .path("/api/v1/auth/refresh") 
+            .sameSite("Lax")
+            .maxAge(0)
+            .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    }
 }

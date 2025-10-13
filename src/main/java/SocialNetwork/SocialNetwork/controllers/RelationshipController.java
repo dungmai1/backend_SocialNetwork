@@ -20,7 +20,7 @@ public class RelationshipController {
     @Autowired
     private UserService userService;
     @PostMapping("/addFollow/{userId}")
-    public ResponseEntity<ApiResponse> addFollow(@RequestHeader("Authorization") String jwt,
+    public ResponseEntity<ApiResponse> addFollow(@CookieValue(value = "accessToken", required = false)  String jwt,
                                                  @PathVariable Long userId){
 
         try {
@@ -42,7 +42,7 @@ public class RelationshipController {
         return users;
     }
     @GetMapping("/checkfollow/{username}")
-    public Boolean CheckFollow(@RequestHeader("Authorization") String jwt,@PathVariable String username){
+    public Boolean CheckFollow(@CookieValue(value = "accessToken", required = false)  String jwt,@PathVariable String username){
         User user = userService.findUserByJwt(jwt);
         boolean checkfollow = relationshipService.checkFollow(user,username);
         return checkfollow;

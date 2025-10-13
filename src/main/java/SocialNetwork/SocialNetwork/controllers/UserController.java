@@ -29,17 +29,17 @@ public class UserController {
         return user;
     }
     @GetMapping("/search")
-    public List<User> getUsers(@RequestHeader("Authorization") String jwt,String textSearch){
+    public List<User> getUsers(@CookieValue(value = "accessToken", required = false)  String jwt,String textSearch){
         List<User> users = userService.searchUserName(textSearch);
         return users;
     }
     @GetMapping("/getAllUser")
-    public List<User> getAllUser(@RequestHeader("Authorization") String jwt){
+    public List<User> getAllUser(@CookieValue(value = "accessToken", required = false)  String jwt){
         List<User> users = userService.getAllUser();
         return users;
     }
     @PutMapping("/updateUser")
-    public ResponseEntity<ApiResponse> updateUser(@RequestHeader("Authorization") String jwt ,@RequestBody String avatar){
+    public ResponseEntity<ApiResponse> updateUser(@CookieValue(value = "accessToken", required = false)  String jwt ,@RequestBody String avatar){
         try{
             User user = userService.findUserByJwt(jwt);
             userService.updateUser(user,avatar);

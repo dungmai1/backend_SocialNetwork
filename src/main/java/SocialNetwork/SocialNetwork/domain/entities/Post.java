@@ -29,6 +29,4 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Comment> commentList = new ArrayList<>();
-    private int likeCount;
-    private int commentCount;
 }
