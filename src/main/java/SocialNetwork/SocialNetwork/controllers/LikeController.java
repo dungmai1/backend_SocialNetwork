@@ -39,7 +39,7 @@ public class LikeController {
         try {
             User user = userService.findUserByJwt(token);
             Map<String, Object> result = new HashMap<>();
-            boolean liked = likeService.hasUserLiked(postId, user.getId());
+            boolean liked = likeService.hasUserLikedPost(postId, user.getId());
             Long countLike = likeService.getPostLikeCount(postId);
             result.put("liked", liked);
             result.put("likeCount", countLike);
@@ -65,10 +65,16 @@ public class LikeController {
         }
     }
     @GetMapping("comment/count")
-    public ResponseEntity<Long> allLikeForComment(Long commentId) {
+    public ResponseEntity<?> allLikeForComment(@CookieValue(value = "accessToken", required = false) String token,
+                                                    Long commentId) {
         try {
+            User user = userService.findUserByJwt(token);
+            Map<String, Object> result = new HashMap<>();
+            boolean liked = likeService.hasUserLikedComment(commentId, user.getId());
             Long countLike = likeService.getCommentLikeCount(commentId);
-            return ResponseEntity.ok(countLike);
+            result.put("liked", liked);
+            result.put("likeCount", countLike);
+            return ResponseEntity.ok(result);
         } catch (CustomException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(0L);
         }

@@ -116,7 +116,7 @@ public class LikeServiceImpl implements LikeService {
         }
         return this.likeRepository.countLikes(comment.getId(), TargetType.COMMENT);
     }
-        @Override
+    @Override
     @Cacheable(value = "comment:likeUsers", key = "#commentId")
     public List<UserDTO> getAllUserLikeComment(Long commentId) throws CustomException{
         Comment comment = commentRepository.findById(commentId).orElse(null);
@@ -136,8 +136,12 @@ public class LikeServiceImpl implements LikeService {
         return List.of();
     }
     @Override
-    public  boolean hasUserLiked(Long postId, Long userId){
+    public boolean hasUserLikedPost(Long postId, Long userId){
         return likeRepository.existsByTargetIdAndTargetTypeAndUser(postId, TargetType.POST, userId);
+    }
+    @Override
+    public boolean hasUserLikedComment(Long commentId, Long userId){
+        return likeRepository.existsByTargetIdAndTargetTypeAndUser(commentId, TargetType.COMMENT, userId);
     }
 
 }

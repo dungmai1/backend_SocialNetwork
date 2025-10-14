@@ -35,8 +35,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Caching(evict = {
-        @CacheEvict(value = "comments:postId", key = "#postId"),
-        @CacheEvict(value = "commentLists:postId", key = "#postId")
+        @CacheEvict(value = "comments:postId", key = "#commentRequest.postId"),
+        @CacheEvict(value = "commentLists:postId", key = "#commentRequest.postId")
     })
     public CommentDTO addComment(CommentRequest commentRequest, User user) {
         Post post = postRepository.findById(commentRequest.getPostId()).orElse(null);
