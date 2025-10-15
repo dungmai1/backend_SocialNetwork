@@ -19,6 +19,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         }
         return this.commentRepository.countByPost(post);
     }
-
+    @Transactional
     @Override
     @Caching(evict = {
             @CacheEvict(value = "comments:postId", key = "#postId"),
@@ -95,8 +96,10 @@ public class CommentServiceImpl implements CommentService {
         safeEvict("repliesLists:commentId",comment.getParentId());
         if (comment.getParentId() == null) {
             commentRepository.deleteAllCommentByParentId(post, comment.getId());
+            commentRepository.save(comment);
         } else {
             commentRepository.delete(comment);
+            commentRepository.save(comment);
         }
     }
 

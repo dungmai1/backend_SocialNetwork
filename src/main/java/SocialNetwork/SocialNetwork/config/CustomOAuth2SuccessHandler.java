@@ -78,6 +78,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                     .build();
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        response.sendRedirect("http://localhost:3000/home");
+        response.sendRedirect("http://localhost:3000");
     }
 }

@@ -3,7 +3,10 @@ package SocialNetwork.SocialNetwork.repositories;
 import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.Post;
 import SocialNetwork.SocialNetwork.domain.entities.User;
+import jakarta.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,7 +24,8 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
     int countRepComment(@Param("commentId") Long commentId);
     @Query("SELECT c FROM Comment c WHERE c.post = :post and c.parentId = :commentId")
     List<Comment> findAllByRepComment(Post post, Long commentId);
+    @Modifying
+    @Transactional
     @Query("DELETE FROM Comment c WHERE c.post = :post and c.parentId = :commentId")
-    boolean deleteAllCommentByParentId(Post post, Long commentId);
-
+    void deleteAllCommentByParentId(Post post, Long commentId);
 }
