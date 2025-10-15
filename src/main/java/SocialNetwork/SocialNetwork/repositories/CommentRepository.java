@@ -21,4 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
     int countRepComment(@Param("commentId") Long commentId);
     @Query("SELECT c FROM Comment c WHERE c.post = :post and c.parentId = :commentId")
     List<Comment> findAllByRepComment(Post post, Long commentId);
+    @Query("DELETE FROM Comment c WHERE c.post = :post and c.parentId = :commentId")
+    boolean deleteAllCommentByParentId(Post post, Long commentId);
+
 }
