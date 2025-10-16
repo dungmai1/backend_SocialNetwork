@@ -2,12 +2,14 @@ package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.domain.entities.Comment;
 import SocialNetwork.SocialNetwork.domain.entities.Post;
+import SocialNetwork.SocialNetwork.domain.entities.TargetType;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.RepCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.CommentRepository;
+import SocialNetwork.SocialNetwork.repositories.LikeRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.services.CommentService;
 
@@ -30,14 +32,16 @@ public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository;
     private PostRepository postRepository;
     private ModelMapper modelMapper;
+    private LikeRepository likeRepository;
     @Autowired
     private CacheManager cacheManager;
 
     public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository,
-            ModelMapper modelMapper) {
+            ModelMapper modelMapper,LikeRepository likeRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.modelMapper = modelMapper;
+        this.likeRepository = likeRepository;
     }
 
     @Override
@@ -92,14 +96,14 @@ public class CommentServiceImpl implements CommentService {
         if (!isCommentOwner && !isPostOwner) {
             throw new CustomException("You do not have permission to delete this comment");
         }
+        likeRepository.deleteByTargetTypeAndTargetId(TargetType.COMMENT, comment.getId());
         safeEvict("replies:commentId",comment.getParentId());
         safeEvict("repliesLists:commentId",comment.getParentId());
         if (comment.getParentId() == null) {
             commentRepository.deleteAllCommentByParentId(post, comment.getId());
-            commentRepository.save(comment);
+            commentRepository.delete(comment);
         } else {
             commentRepository.delete(comment);
-            commentRepository.save(comment);
         }
     }
 
@@ -140,6 +144,7 @@ public class CommentServiceImpl implements CommentService {
         replyComment.setParentId(parentComment.getId());
         replyComment.setCommentTime(LocalDateTime.now());
         commentRepository.save(replyComment);
+        safeEvict("comments:postId",parentComment.getPost().getId());
         return new CommentDTO(
                 replyComment.getId(),
                 replyComment.getContent(),

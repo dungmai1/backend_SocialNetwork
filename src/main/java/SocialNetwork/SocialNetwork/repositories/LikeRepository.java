@@ -3,8 +3,11 @@ package SocialNetwork.SocialNetwork.repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import SocialNetwork.SocialNetwork.domain.entities.Like;
 import SocialNetwork.SocialNetwork.domain.entities.TargetType;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -26,5 +29,9 @@ public interface LikeRepository extends JpaRepository<Like,Long> {
     boolean existsByTargetIdAndTargetTypeAndUser(@Param("targetId") Long targetId,
                     @Param("targetType") TargetType targetType,
                     @Param("userId") Long userId);
+   @Modifying
+   @Transactional
+   @Query("DELETE FROM Like l WHERE l.targetType = :targetType AND l.targetId = :targetId")
+   void deleteByTargetTypeAndTargetId(TargetType targetType, Long targetId);
 }
 
