@@ -12,7 +12,7 @@ public class PostDTO {
     private Integer id;
     private String content;
     private LocalDateTime postTime;
-    private String displayName;
+    private String username;
     private String avatar;
     private int status;
     private String imageUrl;

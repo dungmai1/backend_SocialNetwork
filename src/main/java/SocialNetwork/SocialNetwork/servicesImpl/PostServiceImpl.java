@@ -39,17 +39,17 @@ public class PostServiceImpl implements PostService {
         post.setPostTime(LocalDateTime.now());
         postRepository.save(post);
         PostDTO postDTO = modelMapper.map(post, PostDTO.class);
-        postDTO.setDisplayName(user.getDisplayname());
+        postDTO.setUsername(user.getUsername());
         postDTO.setAvatar(user.getAvatar());
         return postDTO;
     }
     @Override
     public List<PostDTO> getAllPostsByUser(User user) {
-        List<Post> postList = postRepository.findAllByStatus(1);
+        List<Post> postList = postRepository.findByUser(user);
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-            PostDTO.setDisplayName(post.getUser().getDisplayname());
+            PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
             PostDTOs.add(PostDTO);
         }
@@ -76,7 +76,7 @@ public class PostServiceImpl implements PostService {
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-            PostDTO.setDisplayName(post.getUser().getDisplayname());
+            PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
             PostDTOs.add(PostDTO);
         }
@@ -116,15 +116,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDTO> getAllPostsByUsername(String username) {
-        // User user = userRepository.findByUsername(username).orElse(null);
-        // List<Post> postList = postRepository.findAllByUserAndStatus(user,1);
-        // List<PostDTO> PostDTOs = new ArrayList<>();
-        // for (Post post : postList) {
-        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        //     PostDTOs.add(PostDTO);
-        // }
-        // return PostDTOs;
-        return null;
+        User user = userRepository.findByUsername(username).orElse(null);
+        List<Post> postList = postRepository.findByUserAndStatus(user,1);
+        List<PostDTO> PostDTOs = new ArrayList<>();
+        for (Post post : postList) {
+            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+            PostDTO.setUsername(post.getUser().getUsername());
+            PostDTO.setAvatar(post.getUser().getAvatar());
+            PostDTOs.add(PostDTO);
+        }
+        return PostDTOs;
     }
 
     @Override

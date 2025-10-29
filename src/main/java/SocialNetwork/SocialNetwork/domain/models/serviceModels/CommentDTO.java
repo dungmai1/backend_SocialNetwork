@@ -14,7 +14,7 @@ public class CommentDTO implements Serializable {
     private Long id;
     private String content;
     private Long postId;
-    private String userDisplayname;
+    private String username;
     private String userAvatar;
     private String imageUrl;
     private LocalDateTime commentTime;

@@ -65,7 +65,7 @@ public class CommentServiceImpl implements CommentService {
                 comment.getId(),
                 comment.getContent(),
                 comment.getPost().getId(),
-                comment.getUser().getDisplayname(),
+                comment.getUser().getUsername(),
                 comment.getUser().getAvatar(),
                 comment.getImageUrl(),
                 comment.getCommentTime());
@@ -120,7 +120,7 @@ public class CommentServiceImpl implements CommentService {
                         c.getId(),
                         c.getContent(),
                         c.getPost().getId(),
-                        c.getUser().getDisplayname(),
+                        c.getUser().getUsername(),
                         c.getUser().getAvatar(),
                         c.getImageUrl(),
                         c.getCommentTime()))
@@ -149,7 +149,7 @@ public class CommentServiceImpl implements CommentService {
                 replyComment.getId(),
                 replyComment.getContent(),
                 replyComment.getPost().getId(),
-                replyComment.getUser().getDisplayname(),
+                replyComment.getUser().getUsername(),
                 replyComment.getUser().getAvatar(),
                 replyComment.getImageUrl(),
                 replyComment.getCommentTime());

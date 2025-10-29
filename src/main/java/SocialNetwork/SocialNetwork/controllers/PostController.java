@@ -42,12 +42,6 @@ public class PostController {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    @GetMapping("/GetAllPostByUser")
-    public List<PostDTO> getAllPostByUser(@CookieValue(value = "accessToken", required = false) String token){
-        User user = userService.findUserByJwt(token);
-        List<PostDTO> PostDTOList = postService.getAllPostsByUser(user);
-        return PostDTOList;
-    }
     @GetMapping("/GetSinglePost")
     public PostDTO getSinglePost(@CookieValue(value = "accessToken", required = false)  String jwt,
                                           Long PostId){

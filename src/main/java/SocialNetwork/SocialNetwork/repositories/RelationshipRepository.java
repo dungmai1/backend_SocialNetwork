@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RelationshipRepository extends JpaRepository<Relationship,Integer> {
-    Relationship findByUserOneAndUserTwo(User user1,User user2);
+public interface RelationshipRepository extends JpaRepository<Relationship,Long> {
+    Relationship findByUserOneAndUserTwo(Long user1, Long user2);
     @Query("SELECT r.userTwo FROM Relationship r WHERE r.userOne = :user")
     List<Long> findAllByUserOne(User user);
     @Query("SELECT r.userOne FROM Relationship r WHERE r.userTwo = :user")

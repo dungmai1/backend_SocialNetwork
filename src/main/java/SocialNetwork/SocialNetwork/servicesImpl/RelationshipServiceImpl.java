@@ -24,7 +24,7 @@ public class RelationshipServiceImpl implements RelationshipService {
         if( friendCandidate == null || friendCandidate == user ) {
             throw new CustomException("User not found");
         }
-        Relationship checkFriendRelationship = relationshipRepository.findByUserOneAndUserTwo(user,friendCandidate);
+        Relationship checkFriendRelationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),friendCandidate.getId());
         if(checkFriendRelationship != null) {
             relationshipRepository.delete(checkFriendRelationship);
             throw new CustomException("Delete relationship");
@@ -62,9 +62,9 @@ public class RelationshipServiceImpl implements RelationshipService {
     public boolean checkFollow(User user, String username) {
         User checkuser = userRepository.findByUsername(username).orElse(null);
         if(checkuser == user){
-            throw new CustomException("This user is yours");
+            return true;
         }
-        Relationship relationship = relationshipRepository.findByUserOneAndUserTwo(user,checkuser);
+        Relationship relationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),checkuser.getId());
         if(relationship != null) {
             return false;
         }
