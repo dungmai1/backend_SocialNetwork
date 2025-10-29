@@ -19,19 +19,16 @@ public class RelationshipServiceImpl implements RelationshipService {
     }
 
     @Override
-    public boolean addFollow(User user, Long userId) throws CustomException{
-        User friendCandidate = userRepository.findById(userId).orElse(null);
-        if( friendCandidate == null || friendCandidate == user ) {
-            throw new CustomException("User not found");
-        }
-        Relationship checkFriendRelationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),friendCandidate.getId());
-        if(checkFriendRelationship != null) {
+    public boolean addFollow(User user, String username) throws CustomException{
+        User targetUser = userRepository.findByUsername(username).orElse(null);
+        Relationship checkFriendRelationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),targetUser.getId());
+        if(checkFriendRelationship !=null) {
             relationshipRepository.delete(checkFriendRelationship);
             throw new CustomException("Delete relationship");
         }else{
             Relationship relationship = new Relationship();
             relationship.setUserOne(user.getId());
-            relationship.setUserTwo(friendCandidate.getId());
+            relationship.setUserTwo(targetUser.getId());
             relationship.setStatus(1);
             relationshipRepository.save(relationship);
         }
@@ -60,14 +57,14 @@ public class RelationshipServiceImpl implements RelationshipService {
 
     @Override
     public boolean checkFollow(User user, String username) {
-        User checkuser = userRepository.findByUsername(username).orElse(null);
-        if(checkuser == user){
-            return true;
-        }
-        Relationship relationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),checkuser.getId());
-        if(relationship != null) {
-            return false;
-        }
+        // User checkuser = userRepository.findByUsername(username).orElse(null);
+        // if(checkuser == user){
+        //     return true;
+        // }
+        // Relationship relationship = relationshipRepository.findByUserOneAndUserTwo(user.getId(),checkuser.getId());
+        // if(relationship != null) {
+        //     return false;
+        // }
         return true;
     }
 //    @Override

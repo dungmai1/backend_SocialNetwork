@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +16,7 @@ public class PostDTO {
     private String username;
     private String avatar;
     private int status;
-    private String imageUrl;
+    private List<String> images;
     private int likeCount;
     private int commentCount;
 }

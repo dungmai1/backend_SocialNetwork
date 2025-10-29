@@ -3,6 +3,7 @@ package SocialNetwork.SocialNetwork.controllers;
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,10 @@ public class UserController {
         return user;
     }
     @GetMapping("/{username}")
-    public User getUserByUsername(@PathVariable String username){
-        User user = userService.findUserByUsername(username);
-        return user;
+    public UserProfileDTO getUserByUsername(@CookieValue(value = "accessToken", required = false) String token, @PathVariable String username){
+        User user = userService.findUserByJwt(token);
+        UserProfileDTO userProfileDTO = userService.findUserByUsername(user,username);
+        return userProfileDTO;
     }
     @GetMapping("/search")
     public List<User> getUsers(@CookieValue(value = "accessToken", required = false)  String jwt,String textSearch){

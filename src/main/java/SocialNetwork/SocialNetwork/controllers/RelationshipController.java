@@ -24,13 +24,13 @@ public class RelationshipController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/addFollow/{userId}")
+    @PostMapping("/addFollow/{username}")
     public ResponseEntity<ApiResponse> addFollow(@CookieValue(value = "accessToken", required = false) String jwt,
-            @PathVariable Long userId) {
+            @PathVariable String username) {
 
         try {
             User user = userService.findUserByJwt(jwt);
-            relationshipService.addFollow(user, userId);
+            relationshipService.addFollow(user, username);
             return new ResponseEntity<>(new ApiResponse(true, "Create Request Adding Follow Success"), HttpStatus.OK);
         } catch (CustomException e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -47,39 +47,5 @@ public class RelationshipController {
     public List<User> Followers(@PathVariable String username) {
         List<User> users = relationshipService.getFollower(username);
         return users;
-    }
-
-    @GetMapping("/checkfollow/{username}")
-    public Boolean CheckFollow(@CookieValue(value = "accessToken", required = false) String jwt,
-            @PathVariable String username) {
-        User user = userService.findUserByJwt(jwt);
-        boolean checkfollow = relationshipService.checkFollow(user, username);
-        return checkfollow;
-    }
-
-    @GetMapping("count/following/{username}")
-    public ResponseEntity<?> countFollowing(@CookieValue(value = "accessToken", required = false) String jwt,
-            @PathVariable String username) {
-        User currentUser = userService.findUserByJwt(jwt);
-        User targetUser = userService.findUserByUsername(username);
-        Map<String, Object> result = new HashMap<>();
-        Long following = relationshipService.countFollowing(targetUser.getId());
-        boolean isFollowing = relationshipService.checkFollow(currentUser, targetUser.getUsername());
-        result.put("countFollowing", following);
-        result.put("isFollowing", isFollowing);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("count/followers/{username}")
-    public ResponseEntity<?> countFollowers(@CookieValue(value = "accessToken", required = false) String jwt,
-            @PathVariable String username) {
-        User currentUser = userService.findUserByJwt(jwt);
-        User targetUser = userService.findUserByUsername(username);
-        Map<String, Object> result = new HashMap<>();
-        Long followers = relationshipService.countFollower(targetUser.getId());
-        boolean isFollower = relationshipService.checkFollow(currentUser, targetUser.getUsername());
-        result.put("countFollower", followers);
-        result.put("isFollower", isFollower);
-        return ResponseEntity.ok(result);
     }
 }

@@ -2,12 +2,10 @@ package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.config.JwtService;
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
-import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
-import SocialNetwork.SocialNetwork.repositories.SavedRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.UserService;
 
@@ -21,6 +19,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RelationshipRepository relationshipRepository;
     
     @Autowired
     private JwtService jwtService;
@@ -63,12 +63,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElse(null);
-        if(user==null) {
-            throw new CustomException("User not exist with username "+username);
-        }
-        return user;
+    public UserProfileDTO findUserByUsername(User currentUser, String username) {
+        User targetUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException("User not found"));
+        // UserProfileDTO userProfileDTO = new UserProfileDTO(user.getId(),user.getUsername())
+        boolean isSelf = currentUser.getUsername().equals(username);
+        long followerCount = relationshipRepository.countFollower(targetUser.getId());
+        long followingCount = relationshipRepository.countFollowing(targetUser.getId());
+        boolean isFollower = relationshipRepository.existsByUserOneAndUserTwo(currentUser.getId(),targetUser.getId());
+        boolean isFollowing = relationshipRepository.existsByUserTwoAndUserOne(targetUser.getId(),currentUser.getId());
+        
+        UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo(isSelf,isFollowing,isFollower,followerCount,followingCount);
+        return new UserProfileDTO(
+            targetUser.getId(),
+            targetUser.getUsername(),
+            targetUser.getAvatar(),
+            targetUser.getDescription(),
+            relationshipInfo
+        );
     }
 
     @Override

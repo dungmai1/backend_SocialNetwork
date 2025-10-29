@@ -13,6 +13,8 @@ import SocialNetwork.SocialNetwork.services.PostService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +80,10 @@ public class PostServiceImpl implements PostService {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
             PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
+            List<String> imageUrls = post.getImages().stream()
+            .map(PostImage::getImageUrl)
+            .collect(Collectors.toList());
+            PostDTO.setImages(imageUrls);
             PostDTOs.add(PostDTO);
         }
         return PostDTOs;
@@ -123,6 +129,10 @@ public class PostServiceImpl implements PostService {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
             PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
+            List<String> imageUrls = post.getImages().stream()
+            .map(PostImage::getImageUrl)
+            .collect(Collectors.toList());
+            PostDTO.setImages(imageUrls);
             PostDTOs.add(PostDTO);
         }
         return PostDTOs;

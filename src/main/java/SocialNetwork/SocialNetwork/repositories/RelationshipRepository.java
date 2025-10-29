@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface RelationshipRepository extends JpaRepository<Relationship,Long> {
-    Relationship findByUserOneAndUserTwo(Long user1, Long user2);
+    boolean existsByUserOneAndUserTwo(Long userOne, Long userTwo);
+    boolean existsByUserTwoAndUserOne(Long userTwo, Long userOne);
     @Query("SELECT r.userTwo FROM Relationship r WHERE r.userOne = :user")
     List<Long> findAllByUserOne(User user);
     @Query("SELECT r.userOne FROM Relationship r WHERE r.userTwo = :user")
@@ -19,4 +20,5 @@ public interface RelationshipRepository extends JpaRepository<Relationship,Long>
     Long countFollower(Long userId);
     @Query("SELECT COUNT(r) FROM Relationship r WHERE r.userOne = :userId")
     Long countFollowing(Long userId);
+    Relationship findByUserOneAndUserTwo(Long userOne, Long userTwo);
 }

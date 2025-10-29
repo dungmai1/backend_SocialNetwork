@@ -2,6 +2,7 @@ package SocialNetwork.SocialNetwork.services;
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ public interface UserService {
     public UserDTO findUser(String jwt);
     public User findUserByJwt(String jwt);
 
-    User findUserByUsername(String username);
+    UserProfileDTO findUserByUsername(User currentUser,String username);
     List<User> searchUserName(String textSearch);
 
     List<User> getAllUser();
