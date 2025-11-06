@@ -2,6 +2,7 @@ package SocialNetwork.SocialNetwork.servicesImpl;
 
 import SocialNetwork.SocialNetwork.domain.entities.*;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +28,9 @@ public class PostServiceImpl implements PostService {
     private final SavedRepository savedRepository;
     private final RelationshipRepository relationshipRepository;
     private final ModelMapper modelMapper;
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper) {
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository,
+            SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.savedRepository = savedRepository;
@@ -45,6 +50,7 @@ public class PostServiceImpl implements PostService {
         postDTO.setAvatar(user.getAvatar());
         return postDTO;
     }
+
     @Override
     public List<PostDTO> getAllPostsByUser(User user) {
         List<Post> postList = postRepository.findByUser(user);
@@ -73,20 +79,33 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getAllPosts(User user,Integer status) {
-        List<Post> postList = postRepository.findAllByStatus(status);
+    public CursorResponse<PostDTO> getAllPosts(LocalDateTime cursor, User user, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Post> postList;
+        if (cursor == null) {
+            postList = postRepository.findLatestPosts(pageable);
+        } else {
+            postList = postRepository.findNextPosts(cursor, pageable);
+        }
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
             PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
             List<String> imageUrls = post.getImages().stream()
-            .map(PostImage::getImageUrl)
-            .collect(Collectors.toList());
+                    .map(PostImage::getImageUrl)
+                    .collect(Collectors.toList());
             PostDTO.setImages(imageUrls);
+            // PostDTO.setNextCursor(PostDTOs.get(PostDTOs.size() - 1).getPostTime());
             PostDTOs.add(PostDTO);
         }
-        return PostDTOs;
+        LocalDateTime nextCursor;
+        if (!PostDTOs.isEmpty()) {
+            nextCursor = PostDTOs.get(PostDTOs.size() - 1).getPostTime();
+        } else {
+            nextCursor = null;
+        }
+        return new CursorResponse<>(PostDTOs, nextCursor);
     }
 
     @Override
@@ -96,9 +115,9 @@ public class PostServiceImpl implements PostService {
             return false;
         }
         Saved checksaved = savedRepository.findByUserAndPost(user, post);
-        if ( checksaved != null ) {
+        if (checksaved != null) {
             savedRepository.delete(checksaved);
-        }else {
+        } else {
             Saved saved = new Saved();
             saved.setPost(post);
             saved.setUser(user);
@@ -112,9 +131,9 @@ public class PostServiceImpl implements PostService {
         // List<Saved> savedPosts = savedRepository.findAllByUser(user);
         // List<PostDTO> PostDTOs = new ArrayList<>();
         // for (Saved saved : savedPosts) {
-        //     Post post = saved.getPost();
-        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        //     PostDTOs.add(PostDTO);
+        // Post post = saved.getPost();
+        // PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        // PostDTOs.add(PostDTO);
         // }
         // return PostDTOs;
         return null;
@@ -123,15 +142,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDTO> getAllPostsByUsername(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
-        List<Post> postList = postRepository.findByUserAndStatus(user,1);
+        List<Post> postList = postRepository.findByUserAndStatus(user, 1);
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
             PostDTO.setUsername(post.getUser().getUsername());
             PostDTO.setAvatar(post.getUser().getAvatar());
             List<String> imageUrls = post.getImages().stream()
-            .map(PostImage::getImageUrl)
-            .collect(Collectors.toList());
+                    .map(PostImage::getImageUrl)
+                    .collect(Collectors.toList());
             PostDTO.setImages(imageUrls);
             PostDTOs.add(PostDTO);
         }
@@ -143,10 +162,10 @@ public class PostServiceImpl implements PostService {
         // List<Post> postList = postRepository.findByImageUrls(imagePaths);
         // List<PostDTO> PostDTOs = new ArrayList<>();
         // for (Post post : postList) {
-        //     PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        //     PostDTOs.add(PostDTO);
+        // PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        // PostDTOs.add(PostDTO);
         // }
-        // return PostDTOs;    
+        // return PostDTOs;
         return null;
     }
 
@@ -154,16 +173,18 @@ public class PostServiceImpl implements PostService {
     public List<PostDTO> GetAllPostByFollowing(String username) {
         // User user = userRepository.findByUsername(username).orElse(null);
         // if (user == null) {
-        //     return new ArrayList<>(); // Return an empty list if user is not found
+        // return new ArrayList<>(); // Return an empty list if user is not found
         // }
-        // List<Relationship> relationshipList = relationshipRepository.findAllByUserOne(user);
+        // List<Relationship> relationshipList =
+        // relationshipRepository.findAllByUserOne(user);
         // List<PostDTO> PostDTOs = new ArrayList<>();
         // for (Relationship relationship : relationshipList) {
-        //     List<Post> postList = postRepository.findAllByUserAndStatus(relationship.getUserTwo(),1);
-        //     for (Post post : postList) {
-        //         PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        //         PostDTOs.add(PostDTO);
-        //     }
+        // List<Post> postList =
+        // postRepository.findAllByUserAndStatus(relationship.getUserTwo(),1);
+        // for (Post post : postList) {
+        // PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        // PostDTOs.add(PostDTO);
+        // }
         // }
         // return PostDTOs;
         return null;
@@ -172,7 +193,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void BanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
-        if(post==null){
+        if (post == null) {
             throw new CustomException("Post not found");
         }
         post.setStatus(2);
@@ -182,7 +203,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void unbanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
-        if(post==null){
+        if (post == null) {
             throw new CustomException("Post not found");
         }
         post.setStatus(1);
@@ -190,13 +211,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getAllPostBan(User user, Integer status) {
-        List<Post> postList = postRepository.findAllByStatus(status);
-        List<PostDTO> PostDTOs = new ArrayList<>();
-        for (Post post : postList) {
-            PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-            PostDTOs.add(PostDTO);
-        }
-        return PostDTOs;
+    public List<PostDTO> getAllPostBan(User user) {
+        // List<Post> postList = postRepository.findLatestPosts();
+        // List<PostDTO> PostDTOs = new ArrayList<>();
+        // for (Post post : postList) {
+        // PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
+        // PostDTOs.add(PostDTO);
+        // }
+        // return PostDTOs;
+        return null;
     }
 }
