@@ -42,6 +42,7 @@ public class User implements UserDetails {
     private String description;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
+    @JsonIgnore
     private UserProvider provider;
     @JsonIgnore
     @Override

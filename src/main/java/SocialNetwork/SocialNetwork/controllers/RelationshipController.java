@@ -2,6 +2,7 @@ package SocialNetwork.SocialNetwork.controllers;
 
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.User;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.RelationshipService;
 import SocialNetwork.SocialNetwork.services.UserService;
@@ -10,9 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @CrossOrigin(origins = { "http://localhost:3000", "http://localhost:3001" })
 
@@ -46,6 +45,11 @@ public class RelationshipController {
     @GetMapping("/followers/{username}")
     public List<User> Followers(@PathVariable String username) {
         List<User> users = relationshipService.getFollower(username);
+        return users;
+    }
+    @GetMapping("/recommend")
+    public List<UserDTO> recommend(String username) {
+        List<UserDTO> users = relationshipService.recommendUser(username);
         return users;
     }
 }

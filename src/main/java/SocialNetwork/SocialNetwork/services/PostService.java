@@ -28,5 +28,7 @@ public interface PostService {
 
     void unbanPost(Long postId);
     public List<PostDTO> getAllPostBan(User user);
+    List<PostDTO> getAllSavedPostsByUsername(String username);
+
 
 }

@@ -66,12 +66,12 @@ public class PostController {
         return PostDTOList;
     }
 
-    @PostMapping("/Save")
-    public ResponseEntity<ApiResponse> savePost(Long PostId,
+    @PostMapping("/save")
+    public ResponseEntity<ApiResponse> savePost(Long postId,
             @CookieValue(value = "accessToken", required = false) String jwt) {
         try {
             User user = userService.findUserByJwt(jwt);
-            postService.savePost(user, PostId);
+            postService.savePost(user, postId);
             return new ResponseEntity<>(new ApiResponse(true, "Save Post success"), HttpStatus.OK);
         } catch (CustomException e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -127,6 +127,12 @@ public class PostController {
     public List<PostDTO> getAllPostBan(@CookieValue(value = "accessToken", required = false) String jwt) {
         User user = userService.findUserByJwt(jwt);
         List<PostDTO> PostDTOList = postService.getAllPostBan(user);
+        return PostDTOList;
+    }
+    @GetMapping("/GetAllSavedPostByUsername")
+    public List<PostDTO> GetAllSavedPostByUsername(@CookieValue(value = "accessToken", required = false) String jwt) {
+        User user = userService.findUserByJwt(jwt);
+        List<PostDTO> PostDTOList = postService.getAllSavedPostsByUsername(user.getUsername());
         return PostDTOList;
     }
 }

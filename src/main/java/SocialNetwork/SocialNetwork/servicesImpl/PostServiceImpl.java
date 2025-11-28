@@ -221,4 +221,23 @@ public class PostServiceImpl implements PostService {
         // return PostDTOs;
         return null;
     }
+    @Override
+    public  List<PostDTO> getAllSavedPostsByUsername(String username){
+        User user = userRepository.findByUsername(username).orElse(null);
+        List<Saved> listSaveds = savedRepository.findAllByUser(user);
+        List<PostDTO> postDTOs = new ArrayList<>();
+        for (Saved saved : listSaveds) {
+            Post post = saved.getPost(); 
+            PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+            postDTO.setUsername(post.getUser().getUsername());
+            postDTO.setAvatar(post.getUser().getAvatar());
+            List<String> imageUrls = post.getImages().stream()
+                    .map(PostImage::getImageUrl)
+                    .collect(Collectors.toList());
+            postDTO.setImages(imageUrls);
+            postDTOs.add(postDTO);
+        }
+        return postDTOs;
+    }
+
 }
