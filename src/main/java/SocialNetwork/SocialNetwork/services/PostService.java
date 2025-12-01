@@ -1,14 +1,13 @@
 package SocialNetwork.SocialNetwork.services;
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
-import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
 public interface PostService {
-    public PostDTO createPost(PostRequest PostRequest, User user);
+    public PostDTO createPost(String content, List<String> imageUrls, User user);
     public List<PostDTO> getAllPostsByUser(User user);
     public boolean deletePost(User user, Long PostId);
 

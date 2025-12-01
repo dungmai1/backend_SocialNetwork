@@ -34,7 +34,7 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable) 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**","/api/v1/auth/**","/login_google").permitAll()
+                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**","/api/v1/auth/**","/login_google", "/api/upload/image").permitAll()
                         .requestMatchers("/like/CountAllLikeForPost/**",
                                 "/like/AllUserLikePost/**",
                                 "/comment/CountAllCommentForPost",

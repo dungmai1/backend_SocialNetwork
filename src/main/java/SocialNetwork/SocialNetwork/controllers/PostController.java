@@ -6,15 +6,19 @@ import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
+import SocialNetwork.SocialNetwork.services.CloudinaryService;
 import SocialNetwork.SocialNetwork.services.PostService;
 import SocialNetwork.SocialNetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,15 +28,30 @@ public class PostController {
     private PostService postService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private final CloudinaryService cloudinaryService;
 
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createPost(@RequestBody PostRequest PostRequest,
-            @CookieValue(value = "accessToken", required = false) String jwt) {
+    public PostController(CloudinaryService cloudinaryService, PostService postService) {
+        this.cloudinaryService = cloudinaryService;
+        this.postService = postService;
+    }
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> createPost(
+            @CookieValue(value = "accessToken", required = false) String jwt,
+            @RequestPart("data") PostRequest request,
+            @RequestPart("images") MultipartFile[] images) {
         try {
             User user = userService.findUserByJwt(jwt);
-            postService.createPost(PostRequest, user);
+            List<String> imageUrls = new ArrayList();
+            if (images != null && images.length > 0) {
+                imageUrls = cloudinaryService.uploadImage(images);
+            }
+            postService.createPost(request.getContent(), imageUrls, user);
             return new ResponseEntity<>(new ApiResponse(true, "Post has been created"), HttpStatus.CREATED);
         } catch (CustomException e) {
+            return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
@@ -129,6 +148,7 @@ public class PostController {
         List<PostDTO> PostDTOList = postService.getAllPostBan(user);
         return PostDTOList;
     }
+
     @GetMapping("/GetAllSavedPostByUsername")
     public List<PostDTO> GetAllSavedPostByUsername(@CookieValue(value = "accessToken", required = false) String jwt) {
         User user = userService.findUserByJwt(jwt);

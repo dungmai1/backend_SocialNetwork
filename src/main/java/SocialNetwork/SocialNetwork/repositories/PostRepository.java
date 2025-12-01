@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post,Long> {
     List<Post> findByUser(User user);
-    List<Post> findByUserAndStatus(User user,Integer status);
+    List<Post> findByUserAndStatusOrderByPostTimeDesc(User user,Integer status);
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.images WHERE p.status= 1 ORDER BY p.postTime DESC")
     List<Post> findLatestPosts(Pageable pageable);
     @Query("SELECT p FROM Post p LEFT JOIN FETCH p.images WHERE p.status= 1 AND p.postTime < :cursorTime ORDER BY p.postTime DESC")

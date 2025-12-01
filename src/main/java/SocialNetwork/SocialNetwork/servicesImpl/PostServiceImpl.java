@@ -5,6 +5,7 @@ import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
+import SocialNetwork.SocialNetwork.repositories.PostImageRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
 import SocialNetwork.SocialNetwork.repositories.SavedRepository;
@@ -25,26 +26,36 @@ import org.springframework.stereotype.Service;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostImageRepository postImageRepository;
     private final SavedRepository savedRepository;
     private final RelationshipRepository relationshipRepository;
     private final ModelMapper modelMapper;
 
     public PostServiceImpl(PostRepository postRepository, UserRepository userRepository,
-            SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper) {
+            SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper,
+            PostImageRepository postImageRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.savedRepository = savedRepository;
         this.relationshipRepository = relationshipRepository;
         this.modelMapper = modelMapper;
+        this.postImageRepository = postImageRepository;
     }
 
     @Override
-    public PostDTO createPost(PostRequest postRequest, User user) {
-        Post post = modelMapper.map(postRequest, Post.class);
+    public PostDTO createPost(String content, List<String> imageUrls, User user) {
+        Post post = new Post();
         post.setUser(user);
+        post.setContent(content);
         post.setStatus(1);
         post.setPostTime(LocalDateTime.now());
         postRepository.save(post);
+        for (String imageUrl : imageUrls) {
+            PostImage postImage = new PostImage();
+            postImage.setPost(post);
+            postImage.setImageUrl(imageUrl);
+            postImageRepository.save(postImage);
+        }
         PostDTO postDTO = modelMapper.map(post, PostDTO.class);
         postDTO.setUsername(user.getUsername());
         postDTO.setAvatar(user.getAvatar());
@@ -142,7 +153,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDTO> getAllPostsByUsername(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
-        List<Post> postList = postRepository.findByUserAndStatus(user, 1);
+        List<Post> postList = postRepository.findByUserAndStatusOrderByPostTimeDesc(user, 1);
         List<PostDTO> PostDTOs = new ArrayList<>();
         for (Post post : postList) {
             PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
@@ -221,13 +232,14 @@ public class PostServiceImpl implements PostService {
         // return PostDTOs;
         return null;
     }
+
     @Override
-    public  List<PostDTO> getAllSavedPostsByUsername(String username){
+    public List<PostDTO> getAllSavedPostsByUsername(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         List<Saved> listSaveds = savedRepository.findAllByUser(user);
         List<PostDTO> postDTOs = new ArrayList<>();
         for (Saved saved : listSaveds) {
-            Post post = saved.getPost(); 
+            Post post = saved.getPost();
             PostDTO postDTO = modelMapper.map(post, PostDTO.class);
             postDTO.setUsername(post.getUser().getUsername());
             postDTO.setAvatar(post.getUser().getAvatar());
