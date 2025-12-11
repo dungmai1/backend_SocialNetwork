@@ -19,8 +19,6 @@ public interface PostService {
 
     List<PostDTO> getAllPostsByUsername(String username);
 
-    List<PostDTO> getAllPostsByImagePath(List<String> imagePaths);
-
     List<PostDTO> GetAllPostByFollowing(String username);
 
     void BanPost(Long postId);

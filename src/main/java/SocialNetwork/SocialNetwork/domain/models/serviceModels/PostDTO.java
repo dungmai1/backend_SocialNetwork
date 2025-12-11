@@ -19,4 +19,5 @@ public class PostDTO {
     private List<String> images;
     private int likeCount;
     private int commentCount;
+    private boolean isSaved;
 }

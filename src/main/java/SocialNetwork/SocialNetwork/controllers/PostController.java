@@ -110,12 +110,6 @@ public class PostController {
         return PostDTOList;
     }
 
-    @GetMapping("/GetAllPostByImagePath")
-    public List<PostDTO> getAllPostsByImagePath(@RequestParam List<String> imagePaths) {
-        List<PostDTO> PostDTOList = postService.getAllPostsByImagePath(imagePaths);
-        return PostDTOList;
-    }
-
     @GetMapping("/GetAllPostByFollowing/{username}")
     public List<PostDTO> GetAllPostByFollowing(@PathVariable String username) {
         List<PostDTO> PostDTOList = postService.GetAllPostByFollowing(username);

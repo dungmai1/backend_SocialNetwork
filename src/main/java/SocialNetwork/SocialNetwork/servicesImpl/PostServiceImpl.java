@@ -107,6 +107,8 @@ public class PostServiceImpl implements PostService {
                     .map(PostImage::getImageUrl)
                     .collect(Collectors.toList());
             PostDTO.setImages(imageUrls);
+            boolean isSaved = savedRepository.existsByUserAndPost(user, post);
+            PostDTO.setSaved(isSaved);
             // PostDTO.setNextCursor(PostDTOs.get(PostDTOs.size() - 1).getPostTime());
             PostDTOs.add(PostDTO);
         }
@@ -166,18 +168,6 @@ public class PostServiceImpl implements PostService {
             PostDTOs.add(PostDTO);
         }
         return PostDTOs;
-    }
-
-    @Override
-    public List<PostDTO> getAllPostsByImagePath(List<String> imagePaths) {
-        // List<Post> postList = postRepository.findByImageUrls(imagePaths);
-        // List<PostDTO> PostDTOs = new ArrayList<>();
-        // for (Post post : postList) {
-        // PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        // PostDTOs.add(PostDTO);
-        // }
-        // return PostDTOs;
-        return null;
     }
 
     @Override

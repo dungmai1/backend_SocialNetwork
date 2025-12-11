@@ -12,5 +12,5 @@ import java.util.List;
 public interface SavedRepository extends JpaRepository<Saved, Integer> {
     List<Saved> findAllByUser(User user);
     Saved findByUserAndPost(User user , Post post);
-
+    boolean existsByUserAndPost(User user , Post post);
 }
