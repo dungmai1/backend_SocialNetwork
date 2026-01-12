@@ -3,6 +3,7 @@ package SocialNetwork.SocialNetwork.controllers;
 import SocialNetwork.SocialNetwork.common.ApiResponse;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.services.RelationshipService;
 import SocialNetwork.SocialNetwork.services.UserService;
@@ -37,14 +38,14 @@ public class RelationshipController {
     }
 
     @GetMapping("/following/{username}")
-    public List<User> Following(@PathVariable String username) {
-        List<User> users = relationshipService.getFollowing(username);
+    public List<UserProfileDTO> Following(@PathVariable String username) {
+        List<UserProfileDTO> users = relationshipService.getFollowing(username);
         return users;
     }
 
     @GetMapping("/followers/{username}")
-    public List<User> Followers(@PathVariable String username) {
-        List<User> users = relationshipService.getFollower(username);
+    public List<UserProfileDTO> Followers(@PathVariable String username) {
+        List<UserProfileDTO> users = relationshipService.getFollower(username);
         return users;
     }
     @GetMapping("/recommend")

@@ -3,6 +3,7 @@ package SocialNetwork.SocialNetwork.servicesImpl;
 import SocialNetwork.SocialNetwork.domain.entities.Relationship;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserDTO;
+import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
@@ -32,7 +33,6 @@ public class RelationshipServiceImpl implements RelationshipService {
                 targetUser.getId());
         if (checkFriendRelationship != null) {
             relationshipRepository.delete(checkFriendRelationship);
-            throw new CustomException("Delete relationship");
         } else {
             Relationship relationship = new Relationship();
             relationship.setUserOne(user.getId());
@@ -44,23 +44,70 @@ public class RelationshipServiceImpl implements RelationshipService {
     }
 
     @Override
-    public List<User> getFollower(String username) {
+    public List<UserProfileDTO> getFollower(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             throw new CustomException("User not found");
         }
-        List<User> followerIds = relationshipRepository.findAllByUserTwo(user);
-        return null;
+
+        List<Long> followerIds = relationshipRepository.findAllByUserTwo(user.getId());
+        List<UserProfileDTO> followers = new ArrayList<>();
+        for (Long followerId : followerIds) {
+            User follower = userRepository.findById(followerId).orElse(null);
+            if (follower != null) {
+                // Kiểm tra xem người dùng hiện tại có theo dõi lại người này không
+                boolean isFollowing = relationshipRepository.existsByUserOneAndUserTwo(user.getId(), followerId);
+
+                UserProfileDTO dto = new UserProfileDTO();
+                dto.setId(follower.getId());
+                dto.setUsername(follower.getUsername());
+                dto.setAvatar(follower.getAvatar());
+                dto.setBio(follower.getDescription());
+
+                UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo();
+                relationshipInfo.setSelf(false);
+                relationshipInfo.setFollowing(isFollowing);
+                relationshipInfo.setFollower(true);
+                relationshipInfo.setFollowerCount(relationshipRepository.countFollower(followerId));
+                relationshipInfo.setFollowingCount(relationshipRepository.countFollowing(followerId));
+
+                dto.setRelationship(relationshipInfo);
+                followers.add(dto);
+            }
+        }
+        return followers;
     }
 
     @Override
-    public List<User> getFollowing(String username) {
+    public List<UserProfileDTO> getFollowing(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             throw new CustomException("User not found");
         }
-        // List<User> followingIds = relationshipRepository.findAllByUserOne(user);
-        return null;
+        List<Long> followingIds = relationshipRepository.findAllByUserOne(user.getId());
+        List<UserProfileDTO> following = new ArrayList<>();
+        for (Long userId : followingIds) {
+            User followedUser = userRepository.findById(userId).orElse(null);
+            if (followedUser != null) {
+                boolean isFollower = relationshipRepository.existsByUserOneAndUserTwo(userId, user.getId());
+                UserProfileDTO dto = new UserProfileDTO();
+                dto.setId(followedUser.getId());
+                dto.setUsername(followedUser.getUsername());
+                dto.setAvatar(followedUser.getAvatar());
+                dto.setBio(followedUser.getDescription());
+
+                UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo();
+                relationshipInfo.setSelf(false);
+                relationshipInfo.setFollowing(true);
+                relationshipInfo.setFollower(isFollower);
+                relationshipInfo.setFollowerCount(relationshipRepository.countFollower(userId));
+                relationshipInfo.setFollowingCount(relationshipRepository.countFollowing(userId));
+
+                dto.setRelationship(relationshipInfo);
+                following.add(dto);
+            }
+        }
+        return following;
     }
 
     @Override
