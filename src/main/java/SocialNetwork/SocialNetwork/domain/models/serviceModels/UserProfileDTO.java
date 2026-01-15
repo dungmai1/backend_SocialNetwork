@@ -11,7 +11,7 @@ public class UserProfileDTO {
     private Long id;
     private String username;
     private String avatar;
-    private String bio;
+    private String description;
     private RelationshipInfo relationship;
     @Data
     @AllArgsConstructor

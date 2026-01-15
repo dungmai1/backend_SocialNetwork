@@ -1,6 +1,7 @@
 package SocialNetwork.SocialNetwork.services;
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 
@@ -9,13 +10,15 @@ import java.util.List;
 public interface PostService {
     public PostDTO createPost(String content, List<String> imageUrls, User user);
     public List<PostDTO> getAllPostsByUser(User user);
-    public boolean deletePost(User user, Long PostId);
+    public boolean deletePost(User user, Long postId);
 
     PostDTO getSinglePost(User user, Long postId);
     public CursorResponse<PostDTO> getAllPosts(LocalDateTime cursorTime, User user, int limit);
 
     public boolean savePost(User user, Long postId);
     public List<PostDTO> GetAllSavedPost(User user);
+
+    public boolean updatePost(User user, Long postId, PostRequest postRequest);
 
     List<PostDTO> getAllPostsByUsername(String username);
 

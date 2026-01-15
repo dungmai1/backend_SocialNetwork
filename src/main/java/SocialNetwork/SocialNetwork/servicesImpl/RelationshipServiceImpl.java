@@ -62,7 +62,7 @@ public class RelationshipServiceImpl implements RelationshipService {
                 dto.setId(follower.getId());
                 dto.setUsername(follower.getUsername());
                 dto.setAvatar(follower.getAvatar());
-                dto.setBio(follower.getDescription());
+                dto.setDescription(follower.getDescription());
 
                 UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo();
                 relationshipInfo.setSelf(false);
@@ -94,7 +94,7 @@ public class RelationshipServiceImpl implements RelationshipService {
                 dto.setId(followedUser.getId());
                 dto.setUsername(followedUser.getUsername());
                 dto.setAvatar(followedUser.getAvatar());
-                dto.setBio(followedUser.getDescription());
+                dto.setDescription(followedUser.getDescription());
 
                 UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo();
                 relationshipInfo.setSelf(false);

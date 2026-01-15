@@ -15,6 +15,7 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment,Long> {
+    Comment findByPost(Post post);
     @Query("SELECT c FROM Comment c WHERE c.post = :post and c.parentId IS NULL")
     List<Comment> findAllByPost(Post post);
     Comment findByUserAndPostAndId(User user, Post post, Long commentId);

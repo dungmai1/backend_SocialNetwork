@@ -37,7 +37,7 @@ public class CommentServiceImpl implements CommentService {
     private CacheManager cacheManager;
 
     public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository,
-            ModelMapper modelMapper,LikeRepository likeRepository) {
+            ModelMapper modelMapper, LikeRepository likeRepository) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.modelMapper = modelMapper;
@@ -68,7 +68,8 @@ public class CommentServiceImpl implements CommentService {
                 comment.getUser().getUsername(),
                 comment.getUser().getAvatar(),
                 comment.getImageUrl(),
-                comment.getCommentTime());
+                comment.getCommentTime(),
+                comment.getParentId());
     }
 
     @Override
@@ -80,6 +81,7 @@ public class CommentServiceImpl implements CommentService {
         }
         return this.commentRepository.countByPost(post);
     }
+
     @Transactional
     @Override
     @Caching(evict = {
@@ -97,8 +99,8 @@ public class CommentServiceImpl implements CommentService {
             throw new CustomException("You do not have permission to delete this comment");
         }
         likeRepository.deleteByTargetTypeAndTargetId(TargetType.COMMENT, comment.getId());
-        safeEvict("replies:commentId",comment.getParentId());
-        safeEvict("repliesLists:commentId",comment.getParentId());
+        safeEvict("replies:commentId", comment.getParentId());
+        safeEvict("repliesLists:commentId", comment.getParentId());
         if (comment.getParentId() == null) {
             commentRepository.deleteAllCommentByParentId(post, comment.getId());
             commentRepository.delete(comment);
@@ -123,7 +125,8 @@ public class CommentServiceImpl implements CommentService {
                         c.getUser().getUsername(),
                         c.getUser().getAvatar(),
                         c.getImageUrl(),
-                        c.getCommentTime()))
+                        c.getCommentTime(),
+                        c.getParentId()))
                 .collect(Collectors.toList());
     }
 
@@ -144,7 +147,7 @@ public class CommentServiceImpl implements CommentService {
         replyComment.setParentId(parentComment.getId());
         replyComment.setCommentTime(LocalDateTime.now());
         commentRepository.save(replyComment);
-        safeEvict("comments:postId",parentComment.getPost().getId());
+        safeEvict("comments:postId", parentComment.getPost().getId());
         return new CommentDTO(
                 replyComment.getId(),
                 replyComment.getContent(),
@@ -152,7 +155,8 @@ public class CommentServiceImpl implements CommentService {
                 replyComment.getUser().getUsername(),
                 replyComment.getUser().getAvatar(),
                 replyComment.getImageUrl(),
-                replyComment.getCommentTime());
+                replyComment.getCommentTime(),
+                replyComment.getParentId());
     }
 
     @Override
@@ -178,10 +182,11 @@ public class CommentServiceImpl implements CommentService {
                         c.getId(),
                         c.getContent(),
                         c.getPost().getId(),
-                        c.getUser().getDisplayname(),
+                        c.getUser().getUsername(),
                         c.getUser().getAvatar(),
                         c.getImageUrl(),
-                        c.getCommentTime()))
+                        c.getCommentTime(),
+                        c.getParentId()))
                 .collect(Collectors.toList());
     }
 

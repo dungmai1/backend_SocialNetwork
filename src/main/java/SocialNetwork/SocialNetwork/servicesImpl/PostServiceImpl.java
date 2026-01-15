@@ -5,6 +5,7 @@ import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.PostRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CursorResponse;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.PostDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
+import SocialNetwork.SocialNetwork.repositories.CommentRepository;
 import SocialNetwork.SocialNetwork.repositories.PostImageRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
@@ -29,17 +30,19 @@ public class PostServiceImpl implements PostService {
     private final PostImageRepository postImageRepository;
     private final SavedRepository savedRepository;
     private final RelationshipRepository relationshipRepository;
+    private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
 
     public PostServiceImpl(PostRepository postRepository, UserRepository userRepository,
             SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper,
-            PostImageRepository postImageRepository) {
+            PostImageRepository postImageRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.savedRepository = savedRepository;
         this.relationshipRepository = relationshipRepository;
         this.modelMapper = modelMapper;
         this.postImageRepository = postImageRepository;
+        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -76,9 +79,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean deletePost(User user, Long PostId) throws CustomException {
-        Post PostToRemove = postRepository.findById(PostId).orElse(null);
+    public boolean deletePost(User user, Long postId) throws CustomException {
+        Post PostToRemove = postRepository.findById(postId).orElse(null);
         postRepository.delete(PostToRemove);
+        PostImage postImage = postImageRepository.findByPost(PostToRemove);
+        postImageRepository.delete(postImage);
+        Comment comment = commentRepository.findByPost(PostToRemove);
+        commentRepository.delete(comment);
         return true;
     }
 
@@ -136,6 +143,17 @@ public class PostServiceImpl implements PostService {
             saved.setUser(user);
             savedRepository.save(saved);
         }
+        return true;
+    }
+
+    @Override
+    public boolean updatePost(User user, Long postId, PostRequest postRequest) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            return false;
+        }
+        post.setContent(postRequest.getContent());
+        postRepository.save(post);
         return true;
     }
 

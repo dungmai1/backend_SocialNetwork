@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/post")
@@ -58,10 +59,10 @@ public class PostController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deletePost(@CookieValue(value = "accessToken", required = false) String jwt,
-            Long PostId) {
+            Long postId) {
         try {
             User user = userService.findUserByJwt(jwt);
-            postService.deletePost(user, PostId);
+            postService.deletePost(user, postId);
             return new ResponseEntity<>(new ApiResponse(true, "Delete Post success"), HttpStatus.OK);
         } catch (CustomException e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
@@ -97,6 +98,17 @@ public class PostController {
         }
     }
 
+    @PutMapping("/updatePost")
+    public ResponseEntity<ApiResponse> updatePostMethod(Long postId,
+            @CookieValue(value = "accessToken", required = false) String jwt, @RequestBody PostRequest postRequest) {
+        try {
+            User user = userService.findUserByJwt(jwt);
+            postService.updatePost(user, postId, postRequest);
+            return new ResponseEntity<>(new ApiResponse(true, "Update Post success"), HttpStatus.OK);
+        } catch (CustomException e) {
+            return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
     @GetMapping("/GetAllSavedPost")
     public List<PostDTO> GetAllSavedPost(@CookieValue(value = "accessToken", required = false) String jwt) {
         User user = userService.findUserByJwt(jwt);
