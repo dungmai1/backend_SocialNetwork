@@ -5,6 +5,7 @@ import SocialNetwork.SocialNetwork.domain.entities.Post;
 import SocialNetwork.SocialNetwork.domain.entities.TargetType;
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.EditCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.RepCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
@@ -195,6 +196,43 @@ public class CommentServiceImpl implements CommentService {
         if (cache != null) {
             cache.evict(key);
         }
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "comments:postId", key = "#editCommentRequest.postId"),
+            @CacheEvict(value = "commentLists:postId", key = "#editCommentRequest.postId")
+    })
+    public CommentDTO editComment(EditCommentRequest editCommentRequest, User user) {
+        Post post = postRepository.findById(editCommentRequest.getPostId())
+                .orElseThrow(() -> new CustomException("Post not found"));
+        Comment comment = commentRepository.findById(editCommentRequest.getCommentId())
+                .orElseThrow(() -> new CustomException("Comment not found"));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException("You do not have permission to edit this comment");
+        }
+
+        if (!comment.getPost().getId().equals(post.getId())) {
+            throw new CustomException("Comment does not belong to this post");
+        }
+
+        comment.setContent(editCommentRequest.getContent());
+        commentRepository.save(comment);
+
+        if (comment.getParentId() != null) {
+            safeEvict("replies:commentId", comment.getParentId());
+            safeEvict("repliesLists:commentId", comment.getParentId());
+        }
+        return new CommentDTO(
+                comment.getId(),
+                comment.getContent(),
+                comment.getPost().getId(),
+                comment.getUser().getUsername(),
+                comment.getUser().getAvatar(),
+                comment.getImageUrl(),
+                comment.getCommentTime(),
+                comment.getParentId());
     }
 
 }

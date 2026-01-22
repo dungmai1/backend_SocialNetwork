@@ -2,6 +2,7 @@ package SocialNetwork.SocialNetwork.services;
 
 import SocialNetwork.SocialNetwork.domain.entities.User;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.CommentRequest;
+import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.EditCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.ModelsRequest.RepCommentRequest;
 import SocialNetwork.SocialNetwork.domain.models.serviceModels.CommentDTO;
 
@@ -15,4 +16,6 @@ public interface CommentService {
     CommentDTO addRepComment(RepCommentRequest repCommentRequest, User user);
     int CountAllRepComment(Long commentId);
     List<CommentDTO> getAllRepComment(Long commentId);
+
+    CommentDTO editComment(EditCommentRequest editCommentRequest, User user);
 }
