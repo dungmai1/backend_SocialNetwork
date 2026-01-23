@@ -10,12 +10,6 @@ import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.NotificationService;
 import SocialNetwork.SocialNetwork.services.RelationshipService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,9 +22,6 @@ public class RelationshipServiceImpl implements RelationshipService {
     private UserRepository userRepository;
     private RelationshipRepository relationshipRepository;
     private NotificationService notificationService;
-
-    @Autowired
-    private CacheManager cacheManager;
 
     public RelationshipServiceImpl(UserRepository userRepository, RelationshipRepository relationshipRepository,
             NotificationService notificationService) {
@@ -55,18 +46,10 @@ public class RelationshipServiceImpl implements RelationshipService {
             // Send notification to followed user
             notificationService.notifyFollow(user, targetUser);
         }
-        // Evict cache khi follow/unfollow
-        safeEvict("relationship:followerCount", targetUser.getId());
-        safeEvict("relationship:followingCount", user.getId());
-        safeEvict("relationship:followers", username);
-        safeEvict("relationship:following", user.getUsername());
-        safeEvict("user:profile", username);
-        safeEvict("user:profile", user.getUsername());
         return true;
     }
 
     @Override
-    @Cacheable(value = "relationship:followers", key = "#username", unless = "#result == null || #result.isEmpty()")
     public List<UserProfileDTO> getFollower(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
@@ -102,7 +85,6 @@ public class RelationshipServiceImpl implements RelationshipService {
     }
 
     @Override
-    @Cacheable(value = "relationship:following", key = "#username", unless = "#result == null || #result.isEmpty()")
     public List<UserProfileDTO> getFollowing(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
@@ -164,13 +146,11 @@ public class RelationshipServiceImpl implements RelationshipService {
     // return users;
     // }
     @Override
-    @Cacheable(value = "relationship:followerCount", key = "#userId")
     public Long countFollower(Long userId) {
         return relationshipRepository.countFollower(userId);
     }
 
     @Override
-    @Cacheable(value = "relationship:followingCount", key = "#userId")
     public Long countFollowing(Long userId) {
         return relationshipRepository.countFollowing(userId);
     }
@@ -204,15 +184,5 @@ public class RelationshipServiceImpl implements RelationshipService {
             result.add(candidates.get(i));
         }
         return result;
-    }
-
-    // Helper method để evict cache an toàn
-    private void safeEvict(String cacheName, Object key) {
-        if (key == null)
-            return;
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.evict(key);
-        }
     }
 }

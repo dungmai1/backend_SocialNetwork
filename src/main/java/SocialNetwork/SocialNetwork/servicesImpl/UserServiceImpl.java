@@ -11,9 +11,6 @@ import SocialNetwork.SocialNetwork.services.UserService;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,16 +21,14 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private RelationshipRepository relationshipRepository;
-
+    
     @Autowired
     private JwtService jwtService;
     private final ModelMapper modelMapper;
-
-    public UserServiceImpl(UserRepository userRepository, JwtService jwtService, ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository,JwtService jwtService ,ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
-
     @Override
     public User findUserByJwt(String jwt) {
         // Validate token and get username
@@ -56,45 +51,43 @@ public class UserServiceImpl implements UserService {
         if (username == null) {
             throw new CustomException("Invalid JWT token");
         }
-
+        
         // Find user by username
         User user = userRepository.findByUsername(username).orElse(null);
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         if (user == null) {
             throw new CustomException("User not found for token");
         }
-
+        
         return userDTO;
     }
 
     @Override
-    @Cacheable(value = "user:profile", key = "#username", unless = "#result == null")
     public UserProfileDTO findUserByUsername(User currentUser, String username) {
         User targetUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException("User not found"));
-        // UserProfileDTO userProfileDTO = new
-        // UserProfileDTO(user.getId(),user.getUsername())
+        // UserProfileDTO userProfileDTO = new UserProfileDTO(user.getId(),user.getUsername())
         boolean isSelf = currentUser.getUsername().equals(username);
         long followerCount = relationshipRepository.countFollower(targetUser.getId());
         long followingCount = relationshipRepository.countFollowing(targetUser.getId());
-        boolean isFollower = relationshipRepository.existsByUserOneAndUserTwo(currentUser.getId(), targetUser.getId());
-        boolean isFollowing = relationshipRepository.existsByUserTwoAndUserOne(targetUser.getId(), currentUser.getId());
-
-        UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo(isSelf, isFollowing,
-                isFollower, followerCount, followingCount);
+        boolean isFollower = relationshipRepository.existsByUserOneAndUserTwo(currentUser.getId(),targetUser.getId());
+        boolean isFollowing = relationshipRepository.existsByUserTwoAndUserOne(targetUser.getId(),currentUser.getId());
+        
+        UserProfileDTO.RelationshipInfo relationshipInfo = new UserProfileDTO.RelationshipInfo(isSelf,isFollowing,isFollower,followerCount,followingCount);
         return new UserProfileDTO(
-                targetUser.getId(),
-                targetUser.getUsername(),
-                targetUser.getAvatar(),
-                targetUser.getDescription(),
-                relationshipInfo);
+            targetUser.getId(),
+            targetUser.getUsername(),
+            targetUser.getAvatar(),
+            targetUser.getDescription(),
+            relationshipInfo
+        );
     }
 
     @Override
     public List<User> searchUserName(String textSearch) {
         List<User> user = userRepository.findByUsernameContaining(textSearch);
-        if (user == null) {
-            throw new CustomException("User not exist with username " + textSearch);
+        if(user==null) {
+            throw new CustomException("User not exist with username "+textSearch);
         }
         return user;
     }
@@ -106,16 +99,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "user:profile", key = "#user.username"),
-            @CacheEvict(value = "posts:username", key = "#user.username")
-    })
     public void updateUser(User user, String avatar) {
         if (user != null) {
             user.setAvatar(avatar);
             userRepository.save(user);
-        } else {
-            throw new CustomException("User not exist with username " + user.getUsername());
+        }
+        else{
+            throw new CustomException("User not exist with username "+user.getUsername());
         }
     }
 
@@ -123,8 +113,7 @@ public class UserServiceImpl implements UserService {
     public void banUser(Integer UserId) {
         // User user = userRepository.findById(UserId).orElse(null);
         // if(user==null) {
-        // throw new CustomException("User not exist with username
-        // "+user.getUsername());
+        //     throw new CustomException("User not exist with username "+user.getUsername());
         // }
         // user.setStatus(2);
         // userRepository.save(user);
@@ -134,8 +123,7 @@ public class UserServiceImpl implements UserService {
     public void UnbanUser(Integer UserId) {
         // User user = userRepository.findById(UserId).orElse(null);
         // if(user==null) {
-        // throw new CustomException("User not exist with username
-        // "+user.getUsername());
+        //     throw new CustomException("User not exist with username "+user.getUsername());
         // }
         // user.setStatus(1);
         // userRepository.save(user);

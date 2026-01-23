@@ -19,12 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,9 +33,6 @@ public class PostServiceImpl implements PostService {
     private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
 
-    @Autowired
-    private CacheManager cacheManager;
-
     public PostServiceImpl(PostRepository postRepository, UserRepository userRepository,
             SavedRepository savedRepository, RelationshipRepository relationshipRepository, ModelMapper modelMapper,
             PostImageRepository postImageRepository, CommentRepository commentRepository) {
@@ -55,10 +46,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "posts:username", key = "#user.username"),
-            @CacheEvict(value = "posts:savedByUsername", key = "#user.username")
-    })
     public PostDTO createPost(String content, List<String> imageUrls, User user) {
         Post post = new Post();
         post.setUser(user);
@@ -92,18 +79,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "post:single", key = "#postId"),
-            @CacheEvict(value = "posts:username", allEntries = true)
-    })
     public boolean deletePost(User user, Long postId) throws CustomException {
         Post PostToRemove = postRepository.findById(postId).orElse(null);
-        // Evict comment cache for this post
-        safeEvict("comments:postId", postId);
-        safeEvict("commentLists:postId", postId);
-        safeEvict("post:likeCount", postId);
-        safeEvict("post:likeUsers", postId);
-
         postRepository.delete(PostToRemove);
         PostImage postImage = postImageRepository.findByPost(PostToRemove);
         postImageRepository.delete(postImage);
@@ -113,12 +90,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Cacheable(value = "post:single", key = "#postId", unless = "#result == null")
     public PostDTO getSinglePost(User user, Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
-        if (post == null) {
-            return null;
-        }
         PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
         return PostDTO;
     }
@@ -156,7 +129,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @CacheEvict(value = "posts:savedByUsername", key = "#user.username")
     public boolean savePost(User user, Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
@@ -175,10 +147,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "post:single", key = "#postId"),
-            @CacheEvict(value = "posts:username", key = "#user.username")
-    })
     public boolean updatePost(User user, Long postId, PostRequest postRequest) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
@@ -203,7 +171,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Cacheable(value = "posts:username", key = "#username", unless = "#result == null || #result.isEmpty()")
     public List<PostDTO> getAllPostsByUsername(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         List<Post> postList = postRepository.findByUserAndStatusOrderByPostTimeDesc(user, 1);
@@ -243,7 +210,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @CacheEvict(value = "post:single", key = "#postId")
     public void BanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
@@ -251,12 +217,9 @@ public class PostServiceImpl implements PostService {
         }
         post.setStatus(2);
         postRepository.save(post);
-        // Evict username cache for post owner
-        safeEvict("posts:username", post.getUser().getUsername());
     }
 
     @Override
-    @CacheEvict(value = "post:single", key = "#postId")
     public void unbanPost(Long postId) {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
@@ -264,8 +227,6 @@ public class PostServiceImpl implements PostService {
         }
         post.setStatus(1);
         postRepository.save(post);
-        // Evict username cache for post owner
-        safeEvict("posts:username", post.getUser().getUsername());
     }
 
     @Override
@@ -281,7 +242,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Cacheable(value = "posts:savedByUsername", key = "#username", unless = "#result == null || #result.isEmpty()")
     public List<PostDTO> getAllSavedPostsByUsername(String username) {
         User user = userRepository.findByUsername(username).orElse(null);
         List<Saved> listSaveds = savedRepository.findAllByUser(user);
@@ -300,13 +260,4 @@ public class PostServiceImpl implements PostService {
         return postDTOs;
     }
 
-    // Helper method để evict cache an toàn
-    private void safeEvict(String cacheName, Object key) {
-        if (key == null)
-            return;
-        Cache cache = cacheManager.getCache(cacheName);
-        if (cache != null) {
-            cache.evict(key);
-        }
-    }
 }
