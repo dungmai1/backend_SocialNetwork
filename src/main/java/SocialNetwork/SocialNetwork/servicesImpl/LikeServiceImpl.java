@@ -11,6 +11,7 @@ import SocialNetwork.SocialNetwork.repositories.CommentRepository;
 import SocialNetwork.SocialNetwork.repositories.LikeRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.services.LikeService;
+import SocialNetwork.SocialNetwork.services.NotificationService;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -27,12 +28,14 @@ public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     public LikeServiceImpl(LikeRepository likeRepository, PostRepository postRepository,
-            CommentRepository commentRepository) {
+            CommentRepository commentRepository, NotificationService notificationService) {
         this.likeRepository = likeRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -55,6 +58,8 @@ public class LikeServiceImpl implements LikeService {
             like.setTargetId(postId);
             like.setTargetType(TargetType.POST);
             likeRepository.save(like);
+            // Send notification to post owner
+            notificationService.notifyLikePost(user, post.getUser(), postId);
         }
         return true;
     }
@@ -107,6 +112,8 @@ public class LikeServiceImpl implements LikeService {
             like.setTargetId(commentId);
             like.setTargetType(TargetType.COMMENT);
             likeRepository.save(like);
+            // Send notification to comment owner
+            notificationService.notifyLikeComment(user, comment.getUser(), commentId, comment.getPost().getId());
         }
         return true;
     }

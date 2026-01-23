@@ -7,6 +7,7 @@ import SocialNetwork.SocialNetwork.domain.models.serviceModels.UserProfileDTO;
 import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
+import SocialNetwork.SocialNetwork.services.NotificationService;
 import SocialNetwork.SocialNetwork.services.RelationshipService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,16 @@ import java.util.Collections;
 public class RelationshipServiceImpl implements RelationshipService {
     private UserRepository userRepository;
     private RelationshipRepository relationshipRepository;
+    private NotificationService notificationService;
 
     @Autowired
     private CacheManager cacheManager;
 
-    public RelationshipServiceImpl(UserRepository userRepository, RelationshipRepository relationshipRepository) {
+    public RelationshipServiceImpl(UserRepository userRepository, RelationshipRepository relationshipRepository,
+            NotificationService notificationService) {
         this.userRepository = userRepository;
         this.relationshipRepository = relationshipRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -48,6 +52,8 @@ public class RelationshipServiceImpl implements RelationshipService {
             relationship.setUserTwo(targetUser.getId());
             relationship.setStatus(1);
             relationshipRepository.save(relationship);
+            // Send notification to followed user
+            notificationService.notifyFollow(user, targetUser);
         }
         // Evict cache khi follow/unfollow
         safeEvict("relationship:followerCount", targetUser.getId());

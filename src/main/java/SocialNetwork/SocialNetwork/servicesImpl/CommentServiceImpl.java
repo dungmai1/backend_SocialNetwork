@@ -13,6 +13,7 @@ import SocialNetwork.SocialNetwork.repositories.CommentRepository;
 import SocialNetwork.SocialNetwork.repositories.LikeRepository;
 import SocialNetwork.SocialNetwork.repositories.PostRepository;
 import SocialNetwork.SocialNetwork.services.CommentService;
+import SocialNetwork.SocialNetwork.services.NotificationService;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +35,17 @@ public class CommentServiceImpl implements CommentService {
     private PostRepository postRepository;
     private ModelMapper modelMapper;
     private LikeRepository likeRepository;
+    private NotificationService notificationService;
     @Autowired
     private CacheManager cacheManager;
 
     public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository,
-            ModelMapper modelMapper, LikeRepository likeRepository) {
+            ModelMapper modelMapper, LikeRepository likeRepository, NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.modelMapper = modelMapper;
         this.likeRepository = likeRepository;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -62,6 +65,8 @@ public class CommentServiceImpl implements CommentService {
         comment.setImageUrl(commentRequest.getImageUrl());
         comment.setCommentTime(LocalDateTime.now());
         commentRepository.save(comment);
+        // Send notification to post owner
+        notificationService.notifyComment(user, post.getUser(), comment.getId(), post.getId());
         return new CommentDTO(
                 comment.getId(),
                 comment.getContent(),
@@ -148,6 +153,8 @@ public class CommentServiceImpl implements CommentService {
         replyComment.setParentId(parentComment.getId());
         replyComment.setCommentTime(LocalDateTime.now());
         commentRepository.save(replyComment);
+        // Send notification to parent comment owner
+        notificationService.notifyReply(user, parentComment.getUser(), replyComment.getId(), parentComment.getId());
         safeEvict("comments:postId", parentComment.getPost().getId());
         return new CommentDTO(
                 replyComment.getId(),
