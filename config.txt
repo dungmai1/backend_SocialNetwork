@@ -1,0 +1,48 @@
+@ -3,8 +3,46 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/social_network
+spring.datasource.username=postgres
+spring.datasource.password=123456
+
+spring.main.lazy-initialization=true
+
+# JPA & Hibernate
+spring.jpa.show-sql=true
+spring.jpa.generate-ddl=true
+spring.jpa.show-sql=false
+spring.jpa.generate-ddl=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+
+#REDIS
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.data.redis.password=
+spring.data.redis.database=0
+spring.data.redis.timeout=60000
+
+spring.security.oauth2.client.registration.google.client-id=892151241543-sootvrsh2f4lb47cldcdr0jo496amvki.apps.googleusercontent.com
+spring.security.oauth2.client.registration.google.client-secret=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
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+
+# provider config (Google)
+spring.security.oauth2.client.provider.google.issuer-uri=https://accounts.google.com
+
+# Mức log mặc định: chỉ in từ INFO trở lên
+logging.level.root=INFO
+
+# Spring: giữ INFO thôi (không in DEBUG)
+logging.level.org.springframework=INFO
+logging.level.org.springframework.web=INFO
+logging.level.org.springframework.security=INFO
+
+# Log cho package của bạn (nếu chỉ cần cơ bản)
+logging.level.SocialNetwork.SocialNetwork=INFO
+
+# HTTP request/response: chỉ WARN để hạn chế log
+logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=WARN
+
+# Hibernate: chỉ INFO (không in SQL và bind param chi tiết)
+logging.level.org.hibernate.SQL=INFO
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=INFO
+
+# Ghi log ra file
+logging.file.name=logs/app.log
