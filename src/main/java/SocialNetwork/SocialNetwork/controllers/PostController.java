@@ -69,12 +69,17 @@ public class PostController {
         }
     }
 
-    @GetMapping("/GetSinglePost")
-    public PostDTO getSinglePost(@CookieValue(value = "accessToken", required = false) String jwt,
-            Long PostId) {
-        User user = userService.findUserByJwt(jwt);
-        PostDTO PostDTO = postService.getSinglePost(user, PostId);
-        return PostDTO;
+    @GetMapping("/{postId}")
+    public ResponseEntity<?> getSinglePost(
+            @CookieValue(value = "accessToken", required = false) String jwt,
+            @PathVariable Long postId) {
+        try {
+            User user = userService.findUserByJwt(jwt);
+            PostDTO postDTO = postService.getSinglePost(user, postId);
+            return new ResponseEntity<>(postDTO, HttpStatus.OK);
+        } catch (CustomException e) {
+            return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/GetAllPost")
@@ -109,6 +114,7 @@ public class PostController {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
+
     @GetMapping("/GetAllSavedPost")
     public List<PostDTO> GetAllSavedPost(@CookieValue(value = "accessToken", required = false) String jwt) {
         User user = userService.findUserByJwt(jwt);

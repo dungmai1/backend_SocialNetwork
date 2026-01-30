@@ -91,9 +91,19 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDTO getSinglePost(User user, Long postId) {
-        Post post = postRepository.findById(postId).orElse(null);
-        PostDTO PostDTO = modelMapper.map(post, PostDTO.class);
-        return PostDTO;
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException("Post not found with id: " + postId));
+        PostDTO postDTO = modelMapper.map(post, PostDTO.class);
+        postDTO.setUsername(post.getUser().getUsername());
+        postDTO.setAvatar(post.getUser().getAvatar());
+        List<String> imageUrls = post.getImages().stream()
+                .map(PostImage::getImageUrl)
+                .collect(Collectors.toList());
+        postDTO.setImages(imageUrls);
+
+        boolean isSaved = savedRepository.existsByUserAndPost(user, post);
+        postDTO.setSaved(isSaved);
+        return postDTO;
     }
 
     @Override
