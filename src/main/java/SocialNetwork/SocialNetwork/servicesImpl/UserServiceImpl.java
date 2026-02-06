@@ -8,7 +8,9 @@ import SocialNetwork.SocialNetwork.exception.CustomException;
 import SocialNetwork.SocialNetwork.repositories.RelationshipRepository;
 import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import SocialNetwork.SocialNetwork.services.UserService;
-
+import SocialNetwork.SocialNetwork.services.CloudinaryService;
+import SocialNetwork.SocialNetwork.domain.models.requests.UserUpdateRequest;
+import org.springframework.web.multipart.MultipartFile;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(UserRepository userRepository, JwtService jwtService, ModelMapper modelMapper) {
@@ -100,13 +105,53 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(User user, String avatar) {
-        if (user != null) {
-            user.setAvatar(avatar);
-            userRepository.save(user);
-        } else {
-            throw new CustomException("User not exist with username " + user.getUsername());
+    public void updateUser(User user, UserUpdateRequest request, MultipartFile avatar) {
+        if (user == null) {
+            throw new CustomException("User not found");
         }
+
+        // Validate Username
+        if (request.getUsername() != null && !request.getUsername().isEmpty()
+                && !request.getUsername().equals(user.getUsername())) {
+            if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+                throw new CustomException("Username already exists");
+            }
+            user.setUsername(request.getUsername());
+        }
+
+        // Validate Phone
+        if (request.getPhonenumber() != null && !request.getPhonenumber().isEmpty()
+                && !request.getPhonenumber().equals(user.getPhone())) {
+            if (userRepository.findByPhone(request.getPhonenumber()).isPresent()) {
+                throw new CustomException("Phone number already exists");
+            }
+            user.setPhone(request.getPhonenumber());
+        }
+
+        // Validate Email (Gmail)
+        if (request.getEmail() != null && !request.getEmail().isEmpty()
+                && !request.getEmail().equals(user.getGmail())) {
+            User existingUser = userRepository.findByGmail(request.getEmail());
+            if (existingUser != null) {
+                throw new CustomException("Email already exists");
+            }
+            user.setGmail(request.getEmail());
+        }
+
+        if (request.getDisplayname() != null) {
+            user.setDisplayname(request.getDisplayname());
+        }
+
+        if (request.getBio() != null) {
+            user.setDescription(request.getBio());
+        }
+
+        if (avatar != null && !avatar.isEmpty()) {
+            String avatarUrl = cloudinaryService.uploadImage(new MultipartFile[] { avatar }).get(0);
+            user.setAvatar(avatarUrl);
+        }
+
+        userRepository.save(user);
     }
 
     @Override

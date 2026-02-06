@@ -171,7 +171,12 @@ public class RelationshipServiceImpl implements RelationshipService {
         List<UserDTO> candidates = new ArrayList<>();
         for (User u : userRepository.findAll()) {
             if (!u.getId().equals(user.getId()) && !followingIds.contains(u.getId())) {
-                UserDTO dto = new UserDTO(u.getId(), u.getUsername(), u.getDisplayname(), u.getAvatar());
+                UserDTO dto = UserDTO.builder()
+                        .id(u.getId())
+                        .username(u.getUsername())
+                        .displayname(u.getDisplayname())
+                        .avatar(u.getAvatar())
+                        .build();
                 candidates.add(dto);
             }
         }

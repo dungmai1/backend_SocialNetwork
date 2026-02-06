@@ -146,11 +146,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     private NotificationDTO convertToDTO(Notification notification) {
         User actor = notification.getActor();
-        UserDTO actorDTO = new UserDTO(
-                actor.getId(),
-                actor.getUsername(),
-                actor.getDisplayname(),
-                actor.getAvatar());
+        UserDTO actorDTO = UserDTO.builder()
+                .id(actor.getId())
+                .username(actor.getUsername())
+                .displayname(actor.getDisplayname())
+                .avatar(actor.getAvatar())
+                .build();
 
         return NotificationDTO.builder()
                 .id(notification.getId())

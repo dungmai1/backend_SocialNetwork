@@ -40,18 +40,18 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Caching(evict = {
-        @CacheEvict(value = "post:likeCount", key = "#postId"),
-        @CacheEvict(value = "post:likeUsers", key = "#postId")
+            @CacheEvict(value = "post:likeCount", key = "#postId"),
+            @CacheEvict(value = "post:likeUsers", key = "#postId")
     })
     public boolean addLikePost(Long postId, User user) throws CustomException {
         Post post = postRepository.findById(postId).orElse(null);
-        if ( post == null) {
+        if (post == null) {
             throw new CustomException("PostId not found");
         }
         Like checkLike = likeRepository.findByUserAndTargetType(postId, TargetType.POST, user.getId());
-        if ( checkLike != null ) {
+        if (checkLike != null) {
             likeRepository.delete(checkLike);
-        }else {
+        } else {
             Like like = new Like();
             like.setUser(user);
             like.setTargetId(postId);
@@ -62,9 +62,10 @@ public class LikeServiceImpl implements LikeService {
         }
         return true;
     }
+
     @Cacheable(value = "post:likeCount", key = "#postId")
     @Override
-    public Long getPostLikeCount(Long postId) throws CustomException{
+    public Long getPostLikeCount(Long postId) throws CustomException {
         Post post = this.postRepository.findById(postId).orElse(null);
         if (post == null) {
             throw new CustomException("Post not exists");
@@ -74,31 +75,31 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Cacheable(value = "post:likeUsers", key = "#postId")
-    public List<UserDTO> getAllUserLikePost(Long postId) throws CustomException{
+    public List<UserDTO> getAllUserLikePost(Long postId) throws CustomException {
         Post post = postRepository.findById(postId).orElse(null);
         if (post == null) {
             throw new CustomException("PostId not exists");
         }
         List<Like> likes = likeRepository.getAllUserLike(postId, TargetType.POST);
         if (likes != null && !likes.isEmpty()) {
-            return likes.stream().map(like -> 
-            new UserDTO(
-                like.getUser().getId(),
-                like.getUser().getUsername(),
-                like.getUser().getDisplayname(),
-                like.getUser().getAvatar()
-            )).collect(Collectors.toList());
+            return likes.stream().map(like -> UserDTO.builder()
+                    .id(like.getUser().getId())
+                    .username(like.getUser().getUsername())
+                    .displayname(like.getUser().getDisplayname())
+                    .avatar(like.getUser().getAvatar())
+                    .build()).collect(Collectors.toList());
         }
         return List.of();
     }
+
     @Override
     @Caching(evict = {
-        @CacheEvict(value = "comment:likeCount", key = "#commentId"),
-        @CacheEvict(value = "comment:likeUsers", key = "#commentId")
+            @CacheEvict(value = "comment:likeCount", key = "#commentId"),
+            @CacheEvict(value = "comment:likeUsers", key = "#commentId")
     })
     public boolean addLikeComment(Long commentId, User user) {
         Comment comment = commentRepository.findById(commentId).orElse(null);
-        if ( comment == null) {
+        if (comment == null) {
             throw new CustomException("CommentId not found");
         }
         Like checkLike = likeRepository.findByUserAndTargetType(commentId, TargetType.COMMENT, user.getId());
@@ -115,40 +116,43 @@ public class LikeServiceImpl implements LikeService {
         }
         return true;
     }
+
     @Cacheable(value = "comment:likeCount", key = "#commentId")
     @Override
-    public Long getCommentLikeCount(Long commentId) throws CustomException{
+    public Long getCommentLikeCount(Long commentId) throws CustomException {
         Comment comment = this.commentRepository.findById(commentId).orElse(null);
         if (comment == null) {
             throw new CustomException("Comment not exists");
         }
         return this.likeRepository.countLikes(comment.getId(), TargetType.COMMENT);
     }
+
     @Override
     @Cacheable(value = "comment:likeUsers", key = "#commentId")
-    public List<UserDTO> getAllUserLikeComment(Long commentId) throws CustomException{
+    public List<UserDTO> getAllUserLikeComment(Long commentId) throws CustomException {
         Comment comment = commentRepository.findById(commentId).orElse(null);
         if (comment == null) {
             throw new CustomException("CommentId not exists");
         }
         List<Like> likes = likeRepository.getAllUserLike(commentId, TargetType.COMMENT);
         if (likes != null && !likes.isEmpty()) {
-            return likes.stream().map(like -> 
-            new UserDTO(
-                like.getUser().getId(),
-                like.getUser().getUsername(),
-                like.getUser().getDisplayname(),
-                like.getUser().getAvatar()
-            )).collect(Collectors.toList());
+            return likes.stream().map(like -> UserDTO.builder()
+                    .id(like.getUser().getId())
+                    .username(like.getUser().getUsername())
+                    .displayname(like.getUser().getDisplayname())
+                    .avatar(like.getUser().getAvatar())
+                    .build()).collect(Collectors.toList());
         }
         return List.of();
     }
+
     @Override
-    public boolean hasUserLikedPost(Long postId, Long userId){
+    public boolean hasUserLikedPost(Long postId, Long userId) {
         return likeRepository.existsByTargetIdAndTargetTypeAndUser(postId, TargetType.POST, userId);
     }
+
     @Override
-    public boolean hasUserLikedComment(Long commentId, Long userId){
+    public boolean hasUserLikedComment(Long commentId, Long userId) {
         return likeRepository.existsByTargetIdAndTargetTypeAndUser(commentId, TargetType.COMMENT, userId);
     }
 

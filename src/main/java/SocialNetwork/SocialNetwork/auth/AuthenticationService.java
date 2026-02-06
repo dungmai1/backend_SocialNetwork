@@ -37,17 +37,17 @@ public class AuthenticationService {
     private String resetPasswordUrl;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        User checkPhone = userRepository.findByPhone(request.getPhone()).orElse(null);
+        User checkGmail = userRepository.findByGmail(request.getGmail());
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
-        if (checkPhone != null) {
-            throw new CustomException("User with this phone number already exists");
+        if (checkGmail != null) {
+            throw new CustomException("User with this email already exists");
         } else if (checkUsername != null) {
             throw new CustomException("Username already exists");
         } else {
             var user = User.builder()
                     .username(request.getUsername())
                     .displayname(request.getDisplayname())
-                    .phone(request.getPhone())
+                    .gmail(request.getGmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.ROLE_USER)
                     .avatar("https://static.vecteezy.com/system/resources/previews/005/005/788/original/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg")

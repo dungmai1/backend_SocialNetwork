@@ -9,7 +9,9 @@ import SocialNetwork.SocialNetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import SocialNetwork.SocialNetwork.domain.models.requests.UserUpdateRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -60,11 +62,13 @@ public class UserController {
     }
 
     @PutMapping("/updateUser")
-    public ResponseEntity<ApiResponse> updateUser(@CookieValue(value = "accessToken", required = false) String jwt,
-            @RequestBody String avatar) {
+    public ResponseEntity<ApiResponse> updateUser(
+            @CookieValue(value = "accessToken", required = false) String jwt,
+            @ModelAttribute UserUpdateRequest request,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
         try {
             User user = userService.findUserByJwt(jwt);
-            userService.updateUser(user, avatar);
+            userService.updateUser(user, request, avatar);
             return new ResponseEntity<>(new ApiResponse(true, "Update User success"), HttpStatus.OK);
         } catch (CustomException e) {
             return new ResponseEntity<>(new ApiResponse(false, e.getMessage()), HttpStatus.BAD_REQUEST);
