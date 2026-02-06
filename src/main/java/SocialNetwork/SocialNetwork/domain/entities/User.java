@@ -33,7 +33,7 @@ public class User implements UserDetails {
     private String phone;
     private String avatar;
     @Column(unique = true)
-    private String gmail;
+    private String email;
     private Integer status;
     @JsonIgnore
     private String password;

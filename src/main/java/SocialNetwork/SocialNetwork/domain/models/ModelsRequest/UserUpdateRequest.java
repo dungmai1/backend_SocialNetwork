@@ -7,6 +7,6 @@ public class UserUpdateRequest {
     private String username;
     private String displayname;
     private String phone;
-    private String gmail;
+    private String email;
     private String description;
 }

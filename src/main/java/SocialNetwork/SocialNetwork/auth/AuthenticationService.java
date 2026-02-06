@@ -37,9 +37,9 @@ public class AuthenticationService {
     private String resetPasswordUrl;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        User checkGmail = userRepository.findByGmail(request.getGmail());
+        User checkEmail = userRepository.findByEmail(request.getEmail());
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
-        if (checkGmail != null) {
+        if (checkEmail != null) {
             throw new CustomException("User with this email already exists");
         } else if (checkUsername != null) {
             throw new CustomException("Username already exists");
@@ -47,10 +47,13 @@ public class AuthenticationService {
             var user = User.builder()
                     .username(request.getUsername())
                     .displayname(request.getDisplayname())
-                    .gmail(request.getGmail())
+                    .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.ROLE_USER)
-                    .avatar("https://static.vecteezy.com/system/resources/previews/005/005/788/original/user-icon-in-trendy-flat-style-isolated-on-grey-background-user-symbol-for-your-web-site-design-logo-app-ui-illustration-eps10-free-vector.jpg")
+                    .avatar("https://ui-avatars.com/api/?name="
+                            + (request.getDisplayname() != null ? request.getDisplayname() : request.getUsername())
+                                    .replace(" ", "+")
+                            + "&background=random&color=fff&format=svg")
                     .status(1)
                     .build();
             userRepository.save(user);
@@ -172,7 +175,7 @@ public class AuthenticationService {
 
     // ==================== FORGOT PASSWORD ====================
     public void forgotPassword(ForgotPasswordRequest request) {
-        User user = userRepository.findByGmail(request.getGmail());
+        User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
             throw new CustomException("No account found with this email");
         }
@@ -184,7 +187,7 @@ public class AuthenticationService {
 
         String resetLink = resetPasswordUrl + "?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(request.getGmail());
+        message.setTo(request.getEmail());
         message.setSubject("Reset your password - Social Network");
         message.setText("Hello " + user.getDisplayname() + ",\n\n"
                 + "You have requested to reset your password.\n"

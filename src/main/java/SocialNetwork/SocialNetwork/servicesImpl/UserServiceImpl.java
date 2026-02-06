@@ -128,14 +128,14 @@ public class UserServiceImpl implements UserService {
             user.setPhone(request.getPhonenumber());
         }
 
-        // Validate Email (Gmail)
+        // Validate Email
         if (request.getEmail() != null && !request.getEmail().isEmpty()
-                && !request.getEmail().equals(user.getGmail())) {
-            User existingUser = userRepository.findByGmail(request.getEmail());
+                && !request.getEmail().equals(user.getEmail())) {
+            User existingUser = userRepository.findByEmail(request.getEmail());
             if (existingUser != null) {
                 throw new CustomException("Email already exists");
             }
-            user.setGmail(request.getEmail());
+            user.setEmail(request.getEmail());
         }
 
         if (request.getDisplayname() != null) {

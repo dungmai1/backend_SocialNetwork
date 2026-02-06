@@ -18,7 +18,7 @@ public class RegisterRequest {
     private String displayname;
     @NotNull(message = "Email cannot be null")
     @jakarta.validation.constraints.Email(message = "Invalid email format")
-    private String gmail;
+    private String email;
     @NotNull(message = "Password cannot be null")
     @Pattern(regexp = "^[a-zA-Z0-9_]{6,20}$", message = "Password must be 6-20 characters long and can only contain letters, numbers, and underscores")
     private String password;

@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ForgotPasswordRequest {
-    @NotNull(message = "Gmail cannot be null")
-    private String gmail;
+    @NotNull(message = "Email cannot be null")
+    private String email;
 }
