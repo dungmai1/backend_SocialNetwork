@@ -15,6 +15,6 @@ public class ChangePasswordRequest {
     @NotNull(message = "Current password cannot be null")
     private String currentPassword;
     @NotNull(message = "New password cannot be null")
-    @Pattern(regexp = "^[a-zA-Z0-9_]{6,20}$", message = "Password must be 6-20 characters long and can only contain letters, numbers, and underscores")
+    @Pattern(regexp = "^.{6,20}$", message = "Password must be 6-20 characters long")
     private String newPassword;
 }
