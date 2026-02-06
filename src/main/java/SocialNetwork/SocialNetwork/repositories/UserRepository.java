@@ -11,10 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPhone(String Phone);
+
     Optional<User> findByUsername(String username);
+
     @Query("SELECT u FROM User u WHERE u.username LIKE %:username%")
     List<User> findByUsernameContaining(@Param("username") String username);
+
     User findByGmail(String email);
+
+    Optional<User> findByResetToken(String resetToken);
 }

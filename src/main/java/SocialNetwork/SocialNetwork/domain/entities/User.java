@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Users")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,10 +40,13 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     private String description;
+    private String resetToken;
+    private java.time.LocalDateTime resetTokenExpiry;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
     @JsonIgnore
     private UserProvider provider;
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -59,23 +62,27 @@ public class User implements UserDetails {
     public String getUsername() {
         return username;
     }
+
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
+
     @JsonIgnore
 
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
+
     @JsonIgnore
 
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
     @JsonIgnore
 
     @Override
