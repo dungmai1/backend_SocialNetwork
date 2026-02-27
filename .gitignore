@@ -31,3 +31,10 @@ build/
 /logs
 ### VS Code ###
 .vscode/
+
+### Docker data (PostgreSQL, Redis) ###
+/data/
+
+### Environment files ###
+.env
+!.env.example

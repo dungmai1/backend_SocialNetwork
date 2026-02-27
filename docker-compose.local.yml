@@ -1,0 +1,61 @@
+# Docker Compose - Kết nối với PostgreSQL LOCAL + Redis trong Docker
+# Chạy: docker-compose -f docker-compose.local.yml up -d --build
+
+services:
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: social_network_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - social_network_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Application - Kết nối với PostgreSQL LOCAL + Redis Docker
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: social_network_app
+    ports:
+      - "8080:8080"
+    environment:
+      # Database - Kết nối PostgreSQL LOCAL (host.docker.internal = localhost của máy host)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/social_network
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
+      # Redis - Kết nối Redis trong Docker (dùng tên service, không phải localhost)
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ""
+      SPRING_DATA_REDIS_DATABASE: 0
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+      # Logging
+      LOGGING_LEVEL_ROOT: INFO
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - social_network_net
+    volumes:
+      - app_logs:/app/logs
+    restart: unless-stopped
+
+volumes:
+  app_logs:
+  redis_data:
+
+networks:
+  social_network_net:
+    driver: bridge
