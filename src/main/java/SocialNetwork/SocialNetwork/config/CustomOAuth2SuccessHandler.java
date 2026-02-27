@@ -10,7 +10,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import SocialNetwork.SocialNetwork.domain.entities.Role;
 import SocialNetwork.SocialNetwork.domain.entities.User;
@@ -20,13 +19,16 @@ import SocialNetwork.SocialNetwork.repositories.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
-@CrossOrigin(origins = "http://localhost:8080", allowCredentials = "true")
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserProviderRepository userProviderRepository;
+    
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     public CustomOAuth2SuccessHandler(JwtService jwtService, UserRepository userRepository,
             UserProviderRepository userProviderRepository) {
@@ -79,6 +81,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        response.sendRedirect("http://localhost:3000");
+        response.sendRedirect(frontendUrl);
     }
 }
