@@ -36,6 +36,12 @@ public class AuthenticationService {
     @Value("${app.reset-password.url}")
     private String resetPasswordUrl;
 
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${app.cookie.same-site}")
+    private String cookieSameSite;
+
     public AuthenticationResponse register(RegisterRequest request) {
         User checkEmail = userRepository.findByEmail(request.getEmail());
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
@@ -67,23 +73,23 @@ public class AuthenticationService {
         User checkUsername = userRepository.findByUsername(request.getUsername()).orElse(null);
 
         if (checkUsername == null) {
-            throw new CustomException("Username not found");
+            throw new CustomException("Invalid username or password");
         } else {
             if (passwordEncoder.matches(request.getPassword(), checkUsername.getPassword())) {
                 String accessToken = jwtService.generateToken(checkUsername.getUsername(), 15);
                 String refreshToken = jwtService.generateToken(checkUsername.getUsername(), 10080);
                 ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(cookieSecure)
                         .path("/")
-                        .sameSite("Lax")
-                        .maxAge(Duration.ofDays(7))
+                        .sameSite(cookieSameSite)
+                        .maxAge(Duration.ofMinutes(15))
                         .build();
                 ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(cookieSecure)
                         .path("/api/v1/auth/refresh")
-                        .sameSite("Lax")
+                        .sameSite(cookieSameSite)
                         .maxAge(Duration.ofDays(7))
                         .build();
                 response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -93,7 +99,7 @@ public class AuthenticationService {
                         .message("Login successful")
                         .build();
             } else {
-                throw new CustomException("Incorrect password");
+                throw new CustomException("Invalid username or password");
             }
         }
     }
@@ -110,10 +116,10 @@ public class AuthenticationService {
         String accessToken = jwtService.generateToken(username, 15);
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/")
-                .sameSite("Lax")
-                .maxAge(Duration.ofDays(7))
+                .sameSite(cookieSameSite)
+                .maxAge(Duration.ofMinutes(15))
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         return AuthenticationResponse.builder()
@@ -137,16 +143,16 @@ public class AuthenticationService {
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", null)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .maxAge(0)
                 .build();
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/api/v1/auth/refresh")
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .maxAge(0)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());

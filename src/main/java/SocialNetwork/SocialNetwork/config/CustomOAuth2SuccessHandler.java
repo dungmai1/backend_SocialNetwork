@@ -30,6 +30,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
+
+    @Value("${app.cookie.same-site}")
+    private String cookieSameSite;
+
     public CustomOAuth2SuccessHandler(JwtService jwtService, UserRepository userRepository,
             UserProviderRepository userProviderRepository) {
         this.jwtService = jwtService;
@@ -67,16 +73,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String refreshToken = jwtService.generateToken(email, 10080);
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/")
-                .sameSite("Lax")
-                .maxAge(Duration.ofDays(7))
+                .sameSite(cookieSameSite)
+                .maxAge(Duration.ofMinutes(15))
                 .build();
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/api/v1/auth/refresh")
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .maxAge(Duration.ofDays(7))
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
