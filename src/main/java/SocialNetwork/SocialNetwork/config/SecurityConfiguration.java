@@ -1,9 +1,9 @@
 package SocialNetwork.SocialNetwork.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -89,7 +89,7 @@ public class SecurityConfiguration {
                 .forEach(config::addAllowedOriginPattern);
 
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
-        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
@@ -98,9 +98,12 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public CorsFilter corsFilter() {
-        return new CorsFilter(corsConfigurationSource());
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
+        FilterRegistrationBean<CorsFilter> bean =
+                new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource()));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
 }
