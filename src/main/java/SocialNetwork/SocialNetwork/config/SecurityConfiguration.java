@@ -16,66 +16,80 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    
+
     private final JwtAuthFilter jwtAuthFilter;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-    public SecurityConfiguration (JwtAuthFilter jwtAuthFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler){
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
+
+    public SecurityConfiguration(JwtAuthFilter jwtAuthFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable) 
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**","/api/v1/auth/**","/login_google", "/api/upload/image", "/check").permitAll()
+                        .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**", "/api/v1/auth/**", "/login_google",
+                                "/api/upload/image", "/check")
+                        .permitAll()
                         .requestMatchers("/like/CountAllLikeForPost/**",
                                 "/like/AllUserLikePost/**",
                                 "/comment/CountAllCommentForPost",
                                 "/user/**",
                                 "/post/GetAllPostByUsername/**",
-                                "/relationship/**"
-                                    ).permitAll()
+                                "/relationship/**")
+                        .permitAll()
                         .requestMatchers("/post/banPost",
                                 "/post/unbanPost",
                                 "/post/getAllPostBan",
                                 "/user/banUser",
                                 "/user/unbanUser",
                                 "/like/CountAllLike",
-                                "/comment/countAllComment").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                                "/comment/countAllComment")
+                        .hasRole("ADMIN")
+                        .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                    .loginPage("/login_google")
-                    .successHandler(customOAuth2SuccessHandler)
-                ) 
+                        .loginPage("/login_google")
+                        .successHandler(customOAuth2SuccessHandler))
                 .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint((req, res, exx) -> {
-                        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                        res.setContentType("application/json");
-                        res.getWriter().write("{\"error\": \"Unauthorized\"}");
-                    })
-                ) 
+                        .authenticationEntryPoint((req, res, exx) -> {
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.setContentType("application/json");
+                            res.getWriter().write("{\"error\": \"Unauthorized\"}");
+                        }))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("http://localhost:3000");
+
+        Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .forEach(config::addAllowedOriginPattern);
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
