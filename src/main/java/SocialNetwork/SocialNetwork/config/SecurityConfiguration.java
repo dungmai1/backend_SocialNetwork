@@ -19,6 +19,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,10 +84,11 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-        "http://localhost:3000",
-        "${CORS_ALLOWED_ORIGINS}"
-        ));        
+        List<String> origins = new ArrayList<>();
+        origins.add("http://localhost:3000");
+        origins.addAll(Arrays.asList(allowedOrigins));
+        origins.add("https://social-network-frontend-chi.vercel.app");
+        configuration.setAllowedOriginPatterns(origins);        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
