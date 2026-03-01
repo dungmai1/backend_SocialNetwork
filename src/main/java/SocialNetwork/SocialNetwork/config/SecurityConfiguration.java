@@ -1,9 +1,7 @@
 package SocialNetwork.SocialNetwork.config;
 
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,7 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -33,7 +30,7 @@ public class SecurityConfiguration {
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Value("${app.cors.allowed-origins}")
-    private String[] allowedOrigins;
+    private String allowedOrigins;
 
     public SecurityConfiguration(JwtAuthFilter jwtAuthFilter, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
@@ -86,8 +83,7 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> origins = new ArrayList<>();
         origins.add("http://localhost:3000");
-        origins.addAll(Arrays.asList(allowedOrigins));
-        origins.add("https://social-network-frontend-chi.vercel.app");
+        origins.add(allowedOrigins);
         configuration.setAllowedOriginPatterns(origins);        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
