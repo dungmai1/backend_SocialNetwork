@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/swagger-ui*/**", "/", "/v3/api-docs/**", "/api/v1/auth/**", "/login_google",
-                                "/api/upload/image", "/check")
+                                "/api/upload/image", "/check", "/api/me")
                         .permitAll()
                         .requestMatchers("/like/CountAllLikeForPost/**",
                                 "/like/AllUserLikePost/**",
