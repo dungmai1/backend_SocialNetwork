@@ -22,22 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: social_network_redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - social_network_net
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # Spring Boot Application
   app:
     build:
@@ -51,11 +35,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/social_network
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456
-      # Redis
-      SPRING_DATA_REDIS_HOST: redis
-      SPRING_DATA_REDIS_PORT: 6379
-      SPRING_DATA_REDIS_PASSWORD: ""
-      SPRING_DATA_REDIS_DATABASE: 0
+      # Redis (External)
+      SPRING_DATA_REDIS_URL: redis://red-d6jqod8gjchc739ghml0:6379
       # JPA
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"
@@ -63,8 +44,6 @@ services:
       LOGGING_LEVEL_ROOT: INFO
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - social_network_net
@@ -74,7 +53,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
   app_logs:
 
 networks:
